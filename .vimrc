@@ -1,49 +1,3 @@
-map <F9> :!java %<CR>
-set expandtab
-set autoindent
-set shiftwidth=4
-set tabstop=4
-set softtabstop=4
-set smartindent
-set autowrite
-set autoread
-set so=10
-set hlsearch
-set incsearch
-set noerrorbells
-set novisualbell
-set foldcolumn=1
-set nobackup
-set nowb
-set noswapfile
-set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
-set encoding=utf8
-set ffs=unix,dos,mac
-set ai "auto indent
-set si "smart indent
-set wrap "wrap lines
-filetype plugin on
-filetype indent on
-set nu
-syntax on
-autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
-autocmd FileType htmldjango setlocal shiftwidth=2 tabstop=2 softtabstop=2
-autocmd FileType javascript setlocal shiftwidth=2 tabstop=2 softtabstop=2
-
-au BufEnter *.c set makeprg=gcc\ -g\ %\ -o\ %<
-au BufEnter *.cpp set makeprg=g++\ -g\ -std=c+11\ %\ -o\ %<
-au BufEnter *.c nnoremap <F5> :make && ./%<<CR>
-au BufEnter *.cpp nnoremap <F5> :make && ./%<<CR>
-au BufEnter *.py nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
-au BufEnter *.rb nnoremap <buffer> <F5> :exec '!ruby' shellescape(@%, 1)<CR>
-
-if &term =~? 'mlterm\|xterm\|xterm-256\|screen-256'
-    let &t_Co = 256
-    colorscheme molokai
-else
-    colorscheme delek
-endif
-
 " Specify a directory for plugins
 " - For Neovim: stdpath('data') . '/plugged'
 " - Avoid using standard Vim directory names like 'plugin'
@@ -85,12 +39,54 @@ Plug 'Yggdroot/LeaderF'
 Plug 'majutsushi/tagbar'
 Plug 'preservim/nerdcommenter'
 Plug 'vim-airline/vim-airline'
+Plug 'tomasr/molokai'
+Plug 'morhetz/gruvbox'
 
 " Unmanaged plugin (manually installed and updated)
 "Plug '~/my-prototype-plugin'
 
 " Initialize plugin system
 call plug#end()
+
+set expandtab
+set autoindent
+set shiftwidth=4
+set tabstop=4
+set softtabstop=4
+set smartindent
+set autowrite
+set autoread
+set so=10
+set hlsearch
+set incsearch
+set noerrorbells
+set novisualbell
+set foldcolumn=1
+set nobackup
+set nowb
+set noswapfile
+set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+set encoding=utf8
+set ffs=unix,dos,mac
+set ai "auto indent
+set si "smart indent
+set wrap "wrap lines
+filetype plugin on
+filetype indent on
+set nu
+syntax on
+autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType htmldjango setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType javascript setlocal shiftwidth=2 tabstop=2 softtabstop=2
+
+au BufEnter *.c set makeprg=gcc\ -g\ %\ -o\ %<
+au BufEnter *.cpp set makeprg=g++\ -g\ -std=c+11\ %\ -o\ %<
+au BufEnter *.c nnoremap <F5> :make && ./%<<CR>
+au BufEnter *.cpp nnoremap <F5> :make && ./%<<CR>
+au BufEnter *.py nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
+au BufEnter *.rb nnoremap <buffer> <F5> :exec '!ruby' shellescape(@%, 1)<CR>
+
+
 
 map <leader>cd :cd %:p:h<cr>:pwd<cr>
 map <leader>pp :setlocal paste!<cr>
@@ -160,3 +156,9 @@ cno $h e ~/
 "endtry
 "
 au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+if &term =~? 'mlterm\|xterm\|xterm-256\|screen-256'
+    let &t_Co = 256
+    colorscheme gruvbox
+endif
+set bg=dark
