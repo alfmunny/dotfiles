@@ -91,18 +91,14 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+export EDITOR=vim
 alias vi=vim
 alias viz="vi ~/.zshrc"
 alias .z=". ~/.zshrc"
-alias vivi="vi ~/.vim_runtime/my_configs.vim"
-alias viplugin="vi ~/.vim_runtime/vimrcs/plugins_config.vim"
-alias vireadme="vi ~/.vim_runtime/README.md"
+alias vivi="vi ~/.vimrc"
 alias vinotes="vi ~/Notes"
 alias vinb="vi ~/Projects/blog/notes-blog/"
 alias viqn="vi ~/Projects/blog/notes-blog/source/_posts/quick-notes.md"
-alias pubnb="cd ~/Projects/blog/notes-blog; hexo generate; hexo deploy; cd -;"
-alias pubmb="cd ~/Projects/blog/my-blog; hexo generate; hexo deploy; cd -;"
-export EDITOR=vim
 
 alias -s gz='tar -xzvf'
 alias -s tgz='tar -xzvf'
@@ -117,11 +113,14 @@ alias gcid="git log | head -1 | awk '{print substr(\[,1,7)}' | pbcopy"
 # cd alias
 alias cdd="cd ~/Dev"
 alias cdp="cd ~/Projects/"
-alias cdnb="cd ~/Projects/blog/notes-blog"
-alias cbmb="cd ~/Projects/blog/my-blog"
 alias cdpl="cd ~/Projects/playground"
 alias cdweb="cd ~/Projects/web"
+alias cdb="cd ~/Projects/blog/alfmunny.github.io"
+alias cdnb="cd ~/Projects/blog/notes-blog"
 alias cdle="cd ~/Projects/playground/leetcode/"
+alias pb="cd ~/Projects/blog/alfmunny.github.io; hexo generate; hexo deploy; cd -;"
+alias phugo='cd ~/Projects/blog/hugo-blog/;hugo -D;cd public;git add .;git commit -m "update";git push;cd -2'
+alias pnb="cd ~/Projects/blog/notes-blog; hexo generate; hexo deploy; cd -;"
 
 # vsphere clias
 alias vsinit="vsphere init"
@@ -135,7 +134,6 @@ alias vstem="vsphere list template"
 
 # anaconda
 export PATH="/Users/yzhang/anaconda/bin:$PATH"
-
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
@@ -207,8 +205,8 @@ export PATH=$PATH:/opt/local/bin:/opt/local/sbin
 # mysql
 export PATH=$PATH:/usr/local/mysql/bin/:/usr/local/opt/openssl/bin/openssl
 export PATH=/usr/local/opt/mysql@5.6/bin:$PATH
-export LDFLAGS="-L/usr/local/opt/mysql@5.6/lib -L/usr/local/opt/openssl/lib"
-export CPPFLAGS="-I/usr/local/opt/mysql@5.6/include -I/usr/local/opt/openssl/include"
+#export LDFLAGS="-L/usr/local/opt/mysql@5.6/lib -L/usr/local/opt/openssl/lib"
+#export CPPFLAGS="-I/usr/local/opt/mysql@5.6/include -I/usr/local/opt/openssl/include"
 
 # openssl
 export PKG_CONFIG_PATH="/usr/local/opt/openssl/lib/pkgconfig"
@@ -237,3 +235,4 @@ alias emacs="emacsclient -t"
 #dotfiles
 DOTFILES_PATH=$HOME/.df
 alias dtf="/usr/bin/git --git-dir $DOTFILES_PATH --work-tree=$HOME"
+
