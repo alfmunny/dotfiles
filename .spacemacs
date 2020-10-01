@@ -39,12 +39,13 @@ This function should only modify configuration layer settings."
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      auto-completion
-     ;; better-defaults
+     better-defaults
      emacs-lisp
      git
      helm
      lsp
      markdown
+     go
      ;; multiple-cursors
      (org :variables
           org-enable-hugo-support t
@@ -72,6 +73,12 @@ This function should only modify configuration layer settings."
      (python :variables
              python-backend 'anaconda)
      ;; version-control
+     ;; (c-c++ :variables
+     ;;        c-c++-default-mode-for-headers 'c++-mode
+     ;;        c-c++-enable-clang-support t
+     ;;        )
+     (java :variables
+           java-backend 'lsp)
      )
 
    ;; List of additional packages that will be installed without being
@@ -81,7 +88,11 @@ This function should only modify configuration layer settings."
    ;; To use a local version of a package, use the `:location' property:
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(exec-path-from-shell
+   dotspacemacs-additional-packages '(
+                                      exec-path-from-shell
+                                      geiser
+                                      company-jedi
+                                      ob-go
                                       )
 
    ;; A list of packages that cannot be updated.
@@ -485,6 +496,9 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+(require 'ox-extra)
+(require 'ox)
+(ox-extras-activate '(ignore-headlines))
   (setq org-todo-keyword-faces
         (quote
          (("TODO" . "#dc752f")
@@ -506,7 +520,7 @@ before packages are loaded."
   ;;           (lambda () (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags-command))))
   ;; (add-hook 'org-mode-hook
   ;;           (lambda () (add-to-list 'helm-completing-read-handlers-alist '(org-tags-view))))
-  (setq global-visual-line-mode 1)
+  (setq global-visual-line-mode t)
   (setq org-goto-interface 'outline-path-completion)
   (setq org-goto-max-level 10)
   (setq org-startup-indented t)
@@ -541,12 +555,14 @@ before packages are loaded."
 
   ;; (setq org-habit-following-days 7)
   ;; (setq org-habit-preceding-days 21)
-  ;; (setq org-habit-scheduled-past-days nil)
+  (setq org-agenda-show-future-repeats t)
+  (setq org-habit-scheduled-past-days nil)
   (setq org-agenda-show-all-dates t)
   (setq org-tags-match-list-sublevels nil)
   (setq org-habit-show-habits-only-for-today nil)
   (setq org-habit-graph-column 80)
-  ;; (setq org-agenda-show-future-repeats t)
+  (setq org-agenda-sorting-strategy
+        '((agenda time-up priority-down category-keep)))
   ;;(add-to-list 'org-structure-template-alist
   ;;             '("L" . "src python :results both :mkdirp yes :tangle (concat (org-entry-get nil \"PROJECT_DIR\" t) (org-entry-get nil \"EXPORT_FILE_NAME\" t)  \"/solution.py\")"
   ;;               ))
@@ -566,7 +582,6 @@ before packages are loaded."
 ;;    (setq pdf-info-epdfinfo-program "/usr/local/bin/epdfinfo"))
   ;;(pdf-tools-install)
 
-
   (defun air-org-skip-subtree-if-priority (priority)
     "Skip an agenda subtree if it has a priority of PRIORITY.
 
@@ -585,9 +600,9 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
           subtree-end
         nil)))
 
-  (add-hook 'org-agenda-mode-hook
-            (lambda ()
-              (visual-line-mode 1)))
+  ;; (add-hook 'org-agenda-mode-hook
+  ;;           (lambda ()
+  ;;             (visual-line-mode 1)))
   (setq org-agenda-custom-commands
         '(
           ("h" "Daily habits"
@@ -632,14 +647,17 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
            )
           )
         )
+  (defun insert-current-date () 
+         (insert (shell-command-to-string "echo -n $(date +%Y-%m-%d)")))
+
   (setq org-capture-templates
         '(("n" "Notes" entry (file+headline "~/OneDrive/org/notes.org" "Notes"))
           ("t" "ToDo" entry (file+headline "~/OneDrive/org/gtd.org" "Tasks")
            "* TODO %?\n %i\n %a\n")
           ("a" "Algorithm" entry (file+headline "~/OneDrive/org/notes.org" "Algorithms")
            "* TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME:\n:END:\n#+EXPORT_FILE_NAME: ~/Projects/playground/leetcode/\nleetcode\n\n** Problem\n** Solution\n\n")
-          ("j" "Journal" entry (file+datetree "~/OneDrive/org/journal.org")
-           "* %?\n%U\n\n" :clock-in t :clock-resume t :prepend t)
+          ("j" "Journal" entry (file+headline "~/OneDrive/org/journal.org" " ")
+           "* %<%Y-%m-%d %A>\n%?\n\n%U\n" :prepend t)
           ))
   (setq org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (setq org-refile-use-outline-path 'file)
@@ -649,7 +667,16 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
    '((python . t)
      (ruby . t)
      (shell . t)
+     (scheme . t)
+     (java . t)
+     (go . t)
      ))
+  (setq geiser-default-implementation 'guile)
+  (set-fill-column 80)
+  ;;(global-visual-line-mode 1)
+  ;;(visual-line-mode 1)
+  (setq global-visual-fill-column-mode t)
+
   (use-package ox-hugo
     :ensure t          ;Auto-install the package from Melpa (optional)
     :after ox)
@@ -687,11 +714,17 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         python-shell-interpreter-args "-i"
         python-formatter 'yapf
         )
+
+  (setq markdown-fontify-code-blocks-natively t)
   (setq org-src-tab-acts-natively t)
-  (setq org-edit-src-content-indentation 0)
+  ;;(setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)
   (setq exec-path-from-shell-variables '("PATH"))
   (exec-path-from-shell-initialize)
+  (defun my/python-mode-hook ()
+    (add-to-list 'company-backends 'company-jedi))
+  (add-hook 'python-mode-hook 'my/python-mode-hook)
+  (add-hook 'python-mode-hook 'company-mode)
   )
 
 (defun dotspacemacs/emacs-custom-settings ()
@@ -727,7 +760,7 @@ This function is called at the very end of Spacemacs initialization."
     (ol-bbdb ol-bibtex ol-eww ol-gnus org-habit ol-info ol-irc ol-mhe ol-rmail ol-w3m)))
  '(package-selected-packages
    (quote
-    (exec-path-from-shell pdf-tools ox-gfm ein dap-mode bui yapfify pytest pyenv-mode py-isort pippel pipenv pyvenv pip-requirements lsp-python-ms live-py-mode importmagic epc ctable concurrent deferred helm-pydoc cython-mode company-anaconda blacken anaconda-mode pythonic ox-hugo gnuplot-mode zones web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode ivy company-web web-completion-data add-node-modules-path xterm-color vterm terminal-here shell-pop multi-term eshell-z eshell-prompt-extras esh-help yasnippet-snippets treemacs-magit smeargle orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-journal org-download org-cliplink org-brain org-ql peg ov org-super-agenda ts mmm-mode markdown-toc magit-svn magit-section magit-gitflow magit-popup lsp-ui lsp-treemacs htmlize helm-org-rifle helm-org helm-lsp helm-gitignore helm-git-grep helm-company helm-c-yasnippet gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip evil-org evil-magit magit git-commit with-editor transient company-lsp lsp-mode markdown-mode dash-functional company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-persp treemacs-evil treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile projectile helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck pkg-info epl let-alist flycheck-elsa flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump doom-modeline shrink-path all-the-icons memoize f dash s devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv hybrid-mode font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async)))
+    (godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc company-go go-mode ob-go mvn meghanada maven-test-mode lsp-java groovy-mode groovy-imports pcache gradle-mode jedi-core python-environment jedi company-jedi geiser edit-indirect helm-rtags google-c-style flycheck-ycmd flycheck-rtags disaster cpp-auto-include company-ycmd ycmd request-deferred company-rtags rtags company-c-headers clang-format ccls unfill mwim exec-path-from-shell pdf-tools ox-gfm ein dap-mode bui yapfify pytest pyenv-mode py-isort pippel pipenv pyvenv pip-requirements lsp-python-ms live-py-mode importmagic epc ctable concurrent deferred helm-pydoc cython-mode company-anaconda blacken anaconda-mode pythonic ox-hugo gnuplot-mode zones web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode ivy company-web web-completion-data add-node-modules-path xterm-color vterm terminal-here shell-pop multi-term eshell-z eshell-prompt-extras esh-help yasnippet-snippets treemacs-magit smeargle orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-journal org-download org-cliplink org-brain org-ql peg ov org-super-agenda ts mmm-mode markdown-toc magit-svn magit-section magit-gitflow magit-popup lsp-ui lsp-treemacs htmlize helm-org-rifle helm-org helm-lsp helm-gitignore helm-git-grep helm-company helm-c-yasnippet gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip evil-org evil-magit magit git-commit with-editor transient company-lsp lsp-mode markdown-mode dash-functional company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-persp treemacs-evil treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile projectile helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck pkg-info epl let-alist flycheck-elsa flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump doom-modeline shrink-path all-the-icons memoize f dash s devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv hybrid-mode font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async)))
  '(pdf-tools-handle-upgrades nil)
  '(pdf-view-midnight-colors (quote ("#655370" . "#fbf8ef")))
  '(send-mail-function (quote mailclient-send-it))

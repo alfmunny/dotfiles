@@ -1,3 +1,7 @@
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -10,7 +14,8 @@ export ZSH=/Users/yzhang/.oh-my-zsh
 #ZSH_THEME="robbyrussell"
 #ZSH_THEME="random"
 #ZSH_THEME="suvash"
-ZSH_THEME=""
+ZSH_THEME="powerlevel10k/powerlevel10k"
+#POWERLEVEL9K_MODE="nerdfont-complete"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -55,6 +60,13 @@ ZSH_THEME=""
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+    z
+    vi-mode
+    rand-quote
+    zsh-syntax-highlighting
+    gitignore
+    git-open
+    #zsh-autosuggestions
     #git
     #rails
     #ruby
@@ -118,9 +130,11 @@ alias cdweb="cd ~/Projects/web"
 alias cdb="cd ~/Projects/blog/alfmunny.github.io"
 alias cdnb="cd ~/Projects/blog/notes-blog"
 alias cdle="cd ~/Projects/playground/leetcode/"
-alias pb="cd ~/Projects/blog/alfmunny.github.io; hexo generate; hexo deploy; cd -;"
+alias phexo='cd ~/Projects/blog/alfmunny.github.io; hexo generate; hexo deploy; git add .; git commit -m "update";git push; cd -;'
 alias phugo='cd ~/Projects/blog/hugo-blog/;hugo -D;cd public;git add .;git commit -m "update";git push;cd -2'
 alias pnb="cd ~/Projects/blog/notes-blog; hexo generate; hexo deploy; cd -;"
+
+alias youtube-dl=youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
 
 # vsphere clias
 alias vsinit="vsphere init"
@@ -133,7 +147,7 @@ alias vsrm="vsphere rm"
 alias vstem="vsphere list template"
 
 # anaconda
-export PATH="/Users/yzhang/anaconda/bin:$PATH"
+export PATH="/Users/yzhang/anaconda/bin:$PATH"  # commented out by conda initialize
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
@@ -144,6 +158,8 @@ nvm() {
     nvm $@
 }
 
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # Set command line to VIM mode
 set -o vi
@@ -168,10 +184,11 @@ function sb() {
 
 alias getlog="scp root@172.100.51.192:/opt/fast/log/sb_generic.log production.log"
 alias bash90="scp ~/Dev/tools/bashrc root@172.100.51.27:~/.bashrc"
-alias imin="sb 172.100.51.107"
+#alias imin="sb 172.100.51.212"
+alias imin="sb 172.20.61.212"
 
-alias eva13="ssh admin@192.168.1.100"
-alias eva13b="ssh admin@192.168.178.52 -p 10000"
+alias eva13="ssh admin@192.168.0.215 -p 81"
+#alias eva13b="ssh admin@192.168.178.52 -p 10000"
 
 # cheat
 export CHEATPATH='~/Notes'
@@ -212,8 +229,8 @@ export PATH=/usr/local/opt/mysql@5.6/bin:$PATH
 export PKG_CONFIG_PATH="/usr/local/opt/openssl/lib/pkgconfig"
 
 # pure theme
-autoload -U promptinit; promptinit
-prompt pure
+# autoload -U promptinit; promptinit
+# prompt pure
 
 export LC_ALL=en_US.UTF-8
 
@@ -227,7 +244,8 @@ alias bundleinstall=bundle _1.12.5_ install
 eval "$(rbenv init -)"
 
 #emacs
-alias emacs="emacsclient -t"
+#alias emacs="emacsclient -t"
+#alias emacs="emacs"
 
 # zsh profiling
 # zmodload zsh/zprof
@@ -235,4 +253,31 @@ alias emacs="emacsclient -t"
 #dotfiles
 DOTFILES_PATH=$HOME/.df
 alias dtf="/usr/bin/git --git-dir $DOTFILES_PATH --work-tree=$HOME"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# If you need to have llvm first in your PATH run:
+export PATH="/usr/local/opt/llvm/bin:$PATH"
+
+# For compilers to find llvm you may need to set:
+export LDFLAGS="-L/usr/local/opt/llvm/lib"
+export CPPFLAGS="-I/usr/local/opt/llvm/include"
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/Users/yzhang/anaconda/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/yzhang/anaconda/etc/profile.d/conda.sh" ]; then
+        . "/Users/yzhang/anaconda/etc/profile.d/conda.sh"
+    else
+        export PATH="/Users/yzhang/anaconda/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+#
+export CLASSPATH=$CLASSPATH:~/Projects/notes/book-notes/algorithms-4th
 

@@ -12,7 +12,7 @@ Plug 'junegunn/vim-easy-align'
 "Plug 'https://github.com/junegunn/vim-github-dashboard.git'
 
 " Multiple Plug commands can be written in a single line using | separators
-Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
+" Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 
 " On-demand loading
 Plug 'scrooloose/nerdtree'
@@ -30,12 +30,12 @@ Plug 'fatih/vim-go', { 'tag': '*' }
 " Plugin outside ~/.vim/plugged with post-update hook
 "Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'mileszs/ack.vim'
-Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-surround'
-Plug 'Yggdroot/LeaderF'
+Plug 'Yggdroot/LeaderF', {'do' : './install.sh' } 
 Plug 'majutsushi/tagbar'
 Plug 'preservim/nerdcommenter'
 Plug 'vim-airline/vim-airline'
@@ -45,8 +45,14 @@ Plug 'morhetz/gruvbox'
 " Plug 'davidhalter/jedi-vim'
 Plug 'liuchengxu/vista.vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Plug 'mhinz/vim-startify' 
+Plug 'plasticboy/vim-markdown'
 "Plug 'python-mode/python-mode'
-
+Plug 'tpope/vim-rails'
+Plug 'tamago324/LeaderF-filer'
+Plug 'ryanoasis/vim-devicons'
+Plug 'sheerun/vim-polyglot'
+Plug 'airblade/vim-gitgutter'
 " Python
 
 " Unmanaged plugin (manually installed and updated)
@@ -86,13 +92,22 @@ syntax on
 autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType htmldjango setlocal shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType javascript setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType python,ruby,cpp setlocal shiftwidth=2 tabstop=2 softtabstop=2
+"autocmd FileType md setlocal spell spelllang=en_us
 
-au BufEnter *.c set makeprg=gcc\ -g\ %\ -o\ %<
-au BufEnter *.cpp set makeprg=g++\ -g\ -std=c++11\ -IDependencies\ %\ -o\ %<
-au BufEnter *.c nnoremap <F5> :make && ./%<<CR>
-au BufEnter *.cpp nnoremap <F5> :make && ./%<<CR>
+"au BufRead,BufNewFile *.md setlocal textwidth=80
+au BufRead,BufNewFile *.md setlocal spell spelllang=en_us
+au BufEnter *.c set makeprg=gcc\ -g\ %\ -o\ %<.out
+au BufEnter *.cpp set makeprg=g++\ -g\ -std=c++11\ -IDependencies\ %\ -o\ %<.out
+au BufEnter *.java set makeprg=javac\ %
+
+au BufEnter *.c nnoremap <F5> :make && ./%<.out<CR>
+au BufEnter *.cpp nnoremap <F5> :make && ./%<.out<CR>
+au BufEnter *.cpp noremap <leader>ac :make && ./%<.out < data.txt<CR>
 au BufEnter *.py nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
 au BufEnter *.rb nnoremap <buffer> <F5> :exec '!ruby' shellescape(@%, 1)<CR>
+"http://vimdoc.sourceforge.net/htmldoc/cmdline.html#filename-modifiers
+au BufEnter *.java noremap <buffer> <F5> :make && java -ea <C-R>=expand('%:t:r')<CR> < data.txt<CR>
 
 au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 " map leader
@@ -111,6 +126,9 @@ vnoremap <silent> * :call VisualSelection('f')<CR>
 vnoremap <silent> # :call VisualSelection('b')<CR>
 map <silent> <leader><cr> :noh<cr>
 
+" Copy
+map <leader>cp :%w !pbcopy<CR><CR>
+
 " NERDTree
 map <leader>nn :NERDTreeToggle<cr>
 map <leader>nb :NERDTreeFromBookmark 
@@ -118,11 +136,17 @@ map <leader>nf :NERDTreeFind<cr>
 " autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabFree()) | q | endif
 let g:NERDTreeQuitOnOpen = 1
 let g:NERDTreeWinPos = "right"
-let NERDTreeIgnore = ['\.pyc$', '__pycache__']
+let NERDTreeIgnore = ['\.pyc$', '__pycache__', 'class']
+let g:webdevicons_conseal_nerdtree_brackets=1
 
-let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-let &t_SR = "\<Esc>]50;CursorShape=2\x7"
-let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+" let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+" let &t_SR = "\<Esc>]50;CursorShape=2\x7"
+" let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+
+" for vim running in tmux on OSX
+let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
+let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
 
 " Buffer
 " Close current buffer
@@ -134,35 +158,46 @@ nnoremap <leader>h :bprev<CR>
 nnoremap <leader>bo :w \| %bd \| e#<CR>
 map <leader>e :e! ~/.vimrc<CR>
 map <leader>. :source ~/.vimrc<CR>
-map <leader>no :e! ~/Projects/blog/notes-blog/source/_posts/quick-notes.md<CR>
+map <leader>nq :e! ~/Projects/blog/notes-blog/source/_posts/quick-notes.md<CR>
+map <leader>nb :FZF ~/Projects/blog/notes-blog/source/_posts<CR>
 autocmd! bufwritepost vimrc source ~/.vimrc
-map <leader>x :e ~/buffer.md<CR>
 map <leader>q :e ~/buffer<CR>
 " alternate buffer
 nnoremap <BS> <C-^>
 
 " Leaderf
-" let g:Lf_WindowPosition = 'popup'
-" let g:Lf_PreviewInPopup = 1
+let g:Lf_WindowPosition = 'popup'
+let g:Lf_PreviewInPopup = 1
 " let g:Lf_StlSeparator = { 'left': "\ue0b0", 'right': "\ue0b2", 'font': "DejaVu Sans Mono for Powerline" }
 " let g:Lf_PreviewResult = {'Function': 0, 'BufTag': 0 }
 let g:Lf_WindowHeight = 0.3
 let g:Lf_ShortcutF = "<leader>ff"
+let g:Lf_ShowDevIcons = 1
+let g:Lf_FilerShowPromptPath = 1
 noremap <leader>fb :<C-U><C-R>=printf("Leaderf buffer %s", "")<CR><CR>
 noremap <leader>fm :<C-U><C-R>=printf("Leaderf mru %s", "")<CR><CR>
 noremap <leader>ft :<C-U><C-R>=printf("Leaderf bufTag %s", "")<CR><CR>
 noremap <leader>fl :<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>
-"nnoremap <leader>o :LeaderfBuffer<CR>
+
+map <Space>l <leader>ff
+map <Space>f :Leaderf filer<CR>
+map <Space>bb <leader>fb
+map <Space>mm <leader>fm
+
+map <leader><C-f> :<C-U><C-R>=printf("Leaderf rg")<CR><CR>
+map <leader><C-n> :<C-U><C-R>=printf("Leaderf file /Users/yzhang/Projects/notes/")<CR><CR>
+
 nnoremap <leader>fc :LeaderfFunction!<CR>
+" rg in current buffer
 noremap <leader>rb :<C-U><C-R>=printf("Leaderf! rg --current-buffer -e %s ", expand("<cword>"))<CR><CR>
 noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
 xnoremap gf :<C-U><C-R>=printf("Leaderf! rg -F -e %s ", leaderf#Rg#visual())<CR>
 noremap go :<C-U>Leaderf! rg --recall<CR>
 "nnoremap <silent><leader><leader><CR> :Rg! <C-R>=expand("<cword>") 
-" should use `Leaderf gtags --update` first
+"should use `Leaderf gtags --update` first
 let $GTAGSLABEL = 'native-pygments'
 let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
-let g:Lf_GtagsAutoGenerate = 1
+let g:Lf_GtagsAutoGenerate = 0
 let g:Lf_Gtagslabel = 'native-pygments'
 noremap <leader>fg :<C-U><C-R>=printf("Leaderf! gtags")<CR><CR>
 noremap <leader>fr :<C-U><C-R>=printf("Leaderf! gtags -r %s --auto-jump", expand("<cword>"))<CR><CR>
@@ -192,11 +227,12 @@ endif
 map <leader>tn :tabnew<CR>
 map <leader>to :tabonly<CR>
 map <leader>tc :tabclose<CR>
-map <leader>t<leader> :tabnext
+map <leader>tp :tabprevious<CR>
+map <leader>tt :tabnext<CR>
 cno $h e ~/
 
 " git
-map <leader>c :Gstatus<CR>
+map <leader><leader>g :Gstatus<CR>
 
 try
     set undodir=~/.vim/undodir
@@ -223,6 +259,14 @@ function! s:check_back_space() abort
 endfunction
 " inoremap <silent><expr> <c-space> coc#refresh()
 autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Add `:Format` command to format current buffer.
+command! -nargs=0 Format :call CocAction('format')
+
+" Add `:Fold` command to fold current buffer.
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+map <F9> :Format<CR>
 
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
@@ -255,13 +299,17 @@ set updatetime=300
 nmap <leader>rn <Plug>(coc-rename)
 
 "let g:vista_icon_indent = [">", ""]
+nmap <leader>v :Vista!!<CR>
 let g:vista_default_executive = 'coc'
 let g:vista_executive_for = {
-  \ 'py': 'vim_lsp',
-  \ 'cpp': 'vim_lsp',
+  \ 'markdown': 'toc',
   \ }
 let g:vista#renderer#enable_icon = 1
 let g:vista#renderer#icons = {
 \   "function": "\uf794",
 \   "variable": "\uf71b",
 \  }
+
+let g:vim_markdown_folding_disabled = 0
+let g:vim_markdown_folding_level = 2
+let g:vim_markdown_toc_autofit = 1
