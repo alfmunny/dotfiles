@@ -14,6 +14,8 @@ Plug 'junegunn/vim-easy-align'
 " Multiple Plug commands can be written in a single line using | separators
 " Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 
+Plug 'honza/vim-snippets'
+
 " On-demand loading
 Plug 'scrooloose/nerdtree'
 "Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
@@ -53,6 +55,10 @@ Plug 'tamago324/LeaderF-filer'
 Plug 'ryanoasis/vim-devicons'
 Plug 'sheerun/vim-polyglot'
 Plug 'airblade/vim-gitgutter'
+Plug 'jiangmiao/auto-pairs'
+Plug 'rakr/vim-one'
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'dhruvasagar/vim-table-mode'
 " Python
 
 " Unmanaged plugin (manually installed and updated)
@@ -103,7 +109,9 @@ au BufEnter *.java set makeprg=javac\ %
 
 au BufEnter *.c nnoremap <F5> :make && ./%<.out<CR>
 au BufEnter *.cpp nnoremap <F5> :make && ./%<.out<CR>
-au BufEnter *.cpp noremap <leader>ac :make && ./%<.out < data.txt<CR>
+au BufEnter *.cpp nnoremap <F6> :!./build.sh && ./run.sh<CR>
+au BufEnter *.cpp nnoremap <F7> :!./test.sh<CR>
+au BufEnter *.cpp nnoremap <leader>ac :make && ./%<.out < data.txt<CR>
 au BufEnter *.py nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
 au BufEnter *.rb nnoremap <buffer> <F5> :exec '!ruby' shellescape(@%, 1)<CR>
 "http://vimdoc.sourceforge.net/htmldoc/cmdline.html#filename-modifiers
@@ -170,10 +178,12 @@ let g:Lf_WindowPosition = 'popup'
 let g:Lf_PreviewInPopup = 1
 " let g:Lf_StlSeparator = { 'left': "\ue0b0", 'right': "\ue0b2", 'font': "DejaVu Sans Mono for Powerline" }
 " let g:Lf_PreviewResult = {'Function': 0, 'BufTag': 0 }
+let g:Lf_Ctags = "/usr/local/Cellar/universal-ctags/HEAD-01b9fc8/bin/ctags"
 let g:Lf_WindowHeight = 0.3
 let g:Lf_ShortcutF = "<leader>ff"
 let g:Lf_ShowDevIcons = 1
 let g:Lf_FilerShowPromptPath = 1
+let g:Lf_WorkingDirectoryMode = 'Ac'
 noremap <leader>fb :<C-U><C-R>=printf("Leaderf buffer %s", "")<CR><CR>
 noremap <leader>fm :<C-U><C-R>=printf("Leaderf mru %s", "")<CR><CR>
 noremap <leader>ft :<C-U><C-R>=printf("Leaderf bufTag %s", "")<CR><CR>
@@ -181,13 +191,13 @@ noremap <leader>fl :<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>
 
 map <Space>l <leader>ff
 map <Space>f :Leaderf filer<CR>
-map <Space>bb <leader>fb
-map <Space>mm <leader>fm
+map <Space>b <leader>fb
+map <Space>m <leader>fm
 
 map <leader><C-f> :<C-U><C-R>=printf("Leaderf rg")<CR><CR>
 map <leader><C-n> :<C-U><C-R>=printf("Leaderf file /Users/yzhang/Projects/notes/")<CR><CR>
 
-nnoremap <leader>fc :LeaderfFunction!<CR>
+nnoremap <leader>fu :LeaderfFunction!<CR>
 " rg in current buffer
 noremap <leader>rb :<C-U><C-R>=printf("Leaderf! rg --current-buffer -e %s ", expand("<cword>"))<CR><CR>
 noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
@@ -224,15 +234,16 @@ elseif executable('ag')
 endif
 
 " tab
-map <leader>tn :tabnew<CR>
+map <leader>tN :tabnew<CR>
 map <leader>to :tabonly<CR>
 map <leader>tc :tabclose<CR>
 map <leader>tp :tabprevious<CR>
-map <leader>tt :tabnext<CR>
+map <leader>tn :tabnext<CR>
 cno $h e ~/
 
 " git
-map <leader><leader>g :Gstatus<CR>
+map <leader><leader>gs :Gstatus<CR>
+map <leader><leader>gp :Gpush<CR>
 
 try
     set undodir=~/.vim/undodir
@@ -247,6 +258,32 @@ endtry
 "
 " Coc
 set signcolumn=yes
+
+
+" Use <C-l> for trigger snippet expand.
+imap <C-l> <Plug>(coc-snippets-expand)
+
+" Use <C-j> for select text for visual placeholder of snippet.
+vmap <C-j> <Plug>(coc-snippets-select)
+
+" Use <C-j> for jump to next placeholder, it's default of coc.nvim
+let g:coc_snippet_next = '<c-j>'
+
+" Use <C-k> for jump to previous placeholder, it's default of coc.nvim
+let g:coc_snippet_prev = '<c-k>'
+
+" Use <C-j> for both expand and jump (make expand higher priority.)
+imap <C-j> <Plug>(coc-snippets-expand-jump)
+
+" Use <leader>x for convert visual selected code to snippet
+xmap <leader>x  <Plug>(coc-convert-snippet)
+
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? coc#_select_confirm() :
+      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
       \ <SID>check_back_space() ? "\<TAB>" :
@@ -257,6 +294,9 @@ function! s:check_back_space() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+
+let g:coc_snippet_next = '<tab>'
+
 " inoremap <silent><expr> <c-space> coc#refresh()
 autocmd CursorHold * silent call CocActionAsync('highlight')
 
@@ -310,6 +350,21 @@ let g:vista#renderer#icons = {
 \   "variable": "\uf71b",
 \  }
 
-let g:vim_markdown_folding_disabled = 0
+let g:vim_markdown_folding_disabled = 1
 let g:vim_markdown_folding_level = 2
-let g:vim_markdown_toc_autofit = 1
+"let g:vim_markdown_toc_autofit = 1
+"
+function SwitchColor()
+  if (g:colors_name == 'gruvbox') 
+    syntax off
+    set bg=light
+    colorscheme PaperColor
+  else
+    colorscheme
+    syntax on
+    set bg=dark
+    colorscheme gruvbox 
+  endif
+endfunction
+
+nmap <F2> :call SwitchColor()<CR>
