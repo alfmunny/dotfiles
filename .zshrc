@@ -6,6 +6,7 @@ fi
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
+ZSH_DISABLE_COMPFIX=true
 export ZSH=/Users/yzhang/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
