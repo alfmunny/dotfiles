@@ -707,19 +707,26 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
   (setq org-pretty-entities t)
   (setq org-enable-github-support t)
   (setq org-babel-python-command "python3")
-  (setenv "PYTHONPATH"	"~/anaconda/bin")
+  (setenv "PYTHONPATH"	"~/opt/anaconda3/bin/")
   (setq flycheck-python-pycompile-executable "python3"
         python-indent-offset 4
         python-shell-interpreter "python3"
         python-shell-interpreter-args "-i"
         python-formatter 'yapf
         )
-
+  (setq org-confirm-babel-evaluate nil)
   (setq markdown-fontify-code-blocks-natively t)
   (setq org-src-tab-acts-natively t)
-  ;;(setq org-edit-src-content-indentation 0)
+  (setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)
   (setq exec-path-from-shell-variables '("PATH"))
+  (defun org-babel-execute:yaml (body params) body)
+  (defun org-remove-headlines (backend)
+    "Remove headlines with :no_title: tag."
+    (org-map-entries (lambda () (delete-region (point-at-bol) (point-at-eol)))
+                     "no_title"))
+  (add-hook 'org-export-before-processing-hook #'org-remove-headlines)
+
   (exec-path-from-shell-initialize)
   (defun my/python-mode-hook ()
     (add-to-list 'company-backends 'company-jedi))
