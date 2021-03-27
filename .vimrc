@@ -103,8 +103,8 @@ autocmd FileType python,ruby,cpp setlocal shiftwidth=2 tabstop=2 softtabstop=2
 
 "au BufRead,BufNewFile *.md setlocal textwidth=80
 au BufRead,BufNewFile *.md setlocal spell spelllang=en_us
-au BufEnter *.c set makeprg=gcc\ -g\ %\ -o\ %<.out
-au BufEnter *.cpp set makeprg=g++\ -g\ -std=c++11\ -IDependencies\ %\ -o\ %<.out
+au BufEnter *.c set makeprg=gcc\ %\ -o\ %<.out
+au BufEnter *.cpp set makeprg=g++\ -std=c++14\ -IDependencies\ %\ -o\ %<.out
 au BufEnter *.java set makeprg=javac\ %
 
 au BufEnter *.c nnoremap <F5> :make && ./%<.out<CR>

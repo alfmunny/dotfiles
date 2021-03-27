@@ -32,7 +32,8 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(html
+   '(ruby
+     html
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -42,7 +43,8 @@ This function should only modify configuration layer settings."
      better-defaults
      emacs-lisp
      git
-     helm
+     ;;helm
+     ivy
      lsp
      markdown
      go
@@ -50,33 +52,34 @@ This function should only modify configuration layer settings."
      (org :variables
           org-enable-hugo-support t
           org-enable-github-support t
+          org-enable-roam-support t
           ;; org-enable-org-journal-support t
           org-directory "~/OneDrive/org/"
           org-default-notes-file (concat org-directory "notes.org")
-          org-agenda-files (list
-                            (concat org-directory "notes.org")
-                            (concat org-directory "gtd.org")
-                            (concat org-directory "habits.org")
-                            (concat org-directory "journal.org")
-                            (concat org-directory "someday.org"))
+          org-agenda-files (list (concat org-directory "")
+                                 (concat org-directory "roam/journal_2021.org"))
+          ;;org-agenda-files (directory-files-recursively org-directory "\\.org$")
           org-todo-keywords '((sequence "TODO(t)" "PROG(p)" "|" "DONE(d)" "FAIL(f)" "CANCELLED(c)"))
           org-use-fast-todo-selection t
           ;; org-journal-dir "~/OneDrive/org/journal/"
+          org-roam-directory "~/OneDrive/org/roam/"
           )
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
-     ;; spell-checking
+     (spell-checking :variables
+                     spell-checking-enable-by-default nil
+                     spell-checking-enable-auto-dictionary t)
      ;; syntax-c
      ;; hecking
      treemacs
      (python :variables
              python-backend 'anaconda)
      ;; version-control
-     ;; (c-c++ :variables
-     ;;        c-c++-default-mode-for-headers 'c++-mode
-     ;;        c-c++-enable-clang-support t
-     ;;        )
+     (c-c++ :variables
+            c-c++-default-mode-for-headers 'c++-mode
+            c-c++-enable-clang-support t
+            )
      (java :variables
            java-backend 'lsp)
      )
@@ -93,6 +96,13 @@ This function should only modify configuration layer settings."
                                       geiser
                                       company-jedi
                                       ob-go
+                                      anki-connect
+                                      sqlite3
+                                      smartparens
+                                      (org-fc
+                                       :location (recipe :fetcher git
+                                                         :url "https://git.sr.ht/~l3kn/org-fc"
+                                                         :files (:defaults "awk" "demo.org")))
                                       )
 
    ;; A list of packages that cannot be updated.
@@ -218,8 +228,8 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
-                         spacemacs-light)
+   dotspacemacs-themes '(spacemacs-light
+                         spacemacs-dark)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -235,8 +245,8 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-colorize-cursor-according-to-state t
 
    ;; Default font or prioritized list of fonts.
-   dotspacemacs-default-font '("Menlo"
-                               :size 12.0
+   dotspacemacs-default-font '("MesloLGS NF"
+                               :size 13.0
                                :weight normal
                                :width normal)
 
@@ -491,14 +501,43 @@ dump."
   )
 
 (defun dotspacemacs/user-config ()
-"Configuration for user code:
+  "Configuration for user code:
 This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-(require 'ox-extra)
-(require 'ox)
-(ox-extras-activate '(ignore-headlines))
+  (require 'ox-extra)
+  (require 'ox)
+  (require 'company)
+  (add-hook 'after-init-hook 'org-roam-mode)
+  (add-hook 'after-init-hook 'global-company-mode)
+  (add-to-list 'company-backends 'company-capf)
+  (setq org-roam-db-update-method 'immediate)
+  (setq company-minimum-prefix-length 2)
+  (setq company-idle-delay 0.25)
+  (setq org-roam-completion-everywhere t)
+  ;;(with-eval-after-load 'company
+  ;; )
+  (setq completion-ignore-case t)
+  ;;(setq org-roam-graph-viewer #'eww-open-file)
+  (setq org-roam-graph-viewer "/Applications/Firefox.app/Contents/MacOS/firefox")
+
+  ;;(defun my/org-mode-hook ()
+  ;;(add-to-list 'company-backends 'company-capf))
+  ;;(add-hook 'org-mode-hook 'my/org-mode-hook)
+  ;;(add-hook 'org-mode-hook 'company-mode)
+  (use-package hydra)
+  (require 'org-fc-hydra)
+  (setq org-fc-directories '("~/OneDrive/org/"))
+  (setq spacemacs-theme-org-height nil)
+  (setq spacemacs-theme-org-bold nil)
+  (smartparens-global-mode nil)
+  ;;(sp-local-pair "*" nil)
+            ;; (sp-local-pair "_" nil)
+  ;;           (sp-local-pair "/" nil)
+  ;;           (sp-local-pair "~" nil)
+  ;;           (sp-local-pair "=" nil)))
+  (ox-extras-activate '(ignore-headlines))
   (setq org-todo-keyword-faces
         (quote
          (("TODO" . "#dc752f")
@@ -521,11 +560,13 @@ before packages are loaded."
   ;; (add-hook 'org-mode-hook
   ;;           (lambda () (add-to-list 'helm-completing-read-handlers-alist '(org-tags-view))))
   (setq global-visual-line-mode t)
+  (spacemacs/toggle-visual-line-navigation-on)
   (setq org-goto-interface 'outline-path-completion)
   (setq org-goto-max-level 10)
   (setq org-startup-indented t)
   (spacemacs/declare-prefix "o" "custom")
-  (spacemacs/set-leader-keys "os" 'helm-org-agenda-files-headings)
+  ;;(spacemacs/set-leader-keys "os" 'helm-org-agenda-files-headings)
+  ;;(spacemacs/set-leader-keys "os" ')
   (defun open-notes ()
     (interactive)
     (find-file (concat org-directory "notes.org"))
@@ -537,7 +578,7 @@ before packages are loaded."
 
   (defun open-journal ()
     (interactive)
-    (find-file (concat org-directory "journal.org"))
+    (find-file (concat org-roam-directory "journal_2021.org"))
     )
 
   (defun open-habits ()
@@ -558,28 +599,29 @@ before packages are loaded."
   (setq org-agenda-show-future-repeats t)
   (setq org-habit-scheduled-past-days nil)
   (setq org-agenda-show-all-dates t)
-  (setq org-tags-match-list-sublevels nil)
+  (setq org-tags-match-list-sublevels t)
+  (setq org-use-tag-inheritance nil)
   (setq org-habit-show-habits-only-for-today nil)
   (setq org-habit-graph-column 80)
   (setq org-agenda-sorting-strategy
         '((agenda time-up priority-down category-keep)))
+
   ;;(add-to-list 'org-structure-template-alist
   ;;             '("L" . "src python :results both :mkdirp yes :tangle (concat (org-entry-get nil \"PROJECT_DIR\" t) (org-entry-get nil \"EXPORT_FILE_NAME\" t)  \"/solution.py\")"
   ;;               ))
-  
 
   ;;; Install epdfinfo via 'brew install pdf-tools' and then install the
-;;; pdf-tools elisp via the use-package below. To upgrade the epdfinfo
-;;; server, just do 'brew upgrade pdf-tools' prior to upgrading to newest
-;;; pdf-tools package using Emacs package system. If things get messed
-;;; up, just do 'brew uninstall pdf-tools', wipe out the elpa
-;;; pdf-tools package and reinstall both as at the start.
-;; (use-package pdf-tools
-;;    :ensure t
-;;    :config
-;;    (custom-set-variables
-;;     '(pdf-tools-handle-upgrades nil)) ; Use brew upgrade pdf-tools instead.
-;;    (setq pdf-info-epdfinfo-program "/usr/local/bin/epdfinfo"))
+  ;;; pdf-tools elisp via the use-package below. To upgrade the epdfinfo
+  ;;; server, just do 'brew upgrade pdf-tools' prior to upgrading to newest
+  ;;; pdf-tools package using Emacs package system. If things get messed
+  ;;; up, just do 'brew uninstall pdf-tools', wipe out the elpa
+  ;;; pdf-tools package and reinstall both as at the start.
+  ;; (use-package pdf-tools
+  ;;    :ensure t
+  ;;    :config
+  ;;    (custom-set-variables
+  ;;     '(pdf-tools-handle-upgrades nil)) ; Use brew upgrade pdf-tools instead.
+  ;;    (setq pdf-info-epdfinfo-program "/usr/local/bin/epdfinfo"))
   ;;(pdf-tools-install)
 
   (defun air-org-skip-subtree-if-priority (priority)
@@ -616,9 +658,9 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
            ((agenda ""))
            (
             (org-agenda-files (list (concat org-directory "journal.org")
-                                     ))
+                                    ))
             (org-agenda-show-log t)
-            ;;(org-agenda-include-inactive-timestamps t)
+            (org-agenda-include-inactive-timestamps t)
             (org-agenda-category-filter-preset '("+journal"))
             (org-agenda-prefix-format '((agenda . "*  ")))
             (org-agenda-use-time-grid nil)
@@ -628,6 +670,15 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
            ((tags "cheatsheet"))
            (
             (org-agenda-follow-mode t)
+            (org-agenda-sorting-strategy '((tags category-keep)))
+            ))
+          ("r" "Reading"
+           ((tags "+LEVEL=2+reading"))
+           (
+            (org-use-tag-inheritance t)
+            (org-agenda-follow-mode t)
+            (org-agenda-show-inherited-tags 'always)
+            (org-agenda-use-tag-inheritance t)
             (org-agenda-sorting-strategy '((tags category-keep)))
             ))
           ("v" "Simple agenda view"
@@ -640,6 +691,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                      ((org-agenda-skip-function
                        '(or (air-org-skip-subtree-if-habit)
                             (air-org-skip-subtree-if-priority ?A)
+                            (org-agenda-sorting-strategy '((todo-state-up)))
                             (org-agenda-skip-if nil '(schedule deadline))
                             )))
                      ))
@@ -648,17 +700,35 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
           )
         )
   (defun insert-current-date () 
-         (insert (shell-command-to-string "echo -n $(date +%Y-%m-%d)")))
+    (insert (shell-command-to-string "echo -n $(date +%Y-%m-%d)")))
 
   (setq org-capture-templates
         '(("n" "Notes" entry (file+headline "~/OneDrive/org/notes.org" "Notes"))
           ("t" "ToDo" entry (file+headline "~/OneDrive/org/gtd.org" "Tasks")
            "* TODO %?\n %i\n %a\n")
-          ("a" "Algorithm" entry (file+headline "~/OneDrive/org/notes.org" "Algorithms")
+          ("a" "Algorithm" entry (file+headline "~/OneDrive/org/algorithms.org" "Algorithms")
            "* TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME:\n:END:\n#+EXPORT_FILE_NAME: ~/Projects/playground/leetcode/\nleetcode\n\n** Problem\n** Solution\n\n")
-          ("j" "Journal" entry (file+headline "~/OneDrive/org/journal.org" " ")
-           "* %<%Y-%m-%d %A>\n%?\n\n%U\n" :prepend t)
+          ("j" "Journal" entry (file+headline "~/OneDrive/org/roam/journal_2021.org" "2021")
+           "* %<%Y-%m-%d %A>\n** ToDo\n*** TODO %?\n%U\n** How was today?\n** Hightlight\n" :prepend t)
           ))
+  (setq org-roam-capture-templates
+        '(("d" "Document" plain (function org-roam-capture--get-point)
+           "%?"
+           :file-name "${slug}"
+           :head "#+title: ${title}\n#+date: %<%Y-%m-%d %H:%M:%S>\n"
+           :unnarrowed t)
+          ("b" "Book Notes" plain (function org-roam-capture--get-point)
+           "* Summary\n** What is this book about?\n** How do you find the book?\n* Chapters \n\n"
+           :file-name "${slug}"
+           :head "#+title: ${title}\n#+date: %<%Y-%m-%d %H:%M:%S>\n"
+           :unnarrowed t)
+          ("r" "Roam" plain (function org-roam-capture--get-point)
+           "%?"
+           :file-name "%<%Y%m%d%H%M%S>-${slug}"
+           :head "#+title: ${title}\n"
+           :unnarrowed t)
+          ))
+  ;;(add-hook 'org-mode-hook (lambda ()
   (setq org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (setq org-refile-use-outline-path 'file)
   (setq org-outline-path-complete-in-steps nil)
@@ -670,11 +740,12 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
      (scheme . t)
      (java . t)
      (go . t)
+     (C . t)
      ))
   (setq geiser-default-implementation 'guile)
   (set-fill-column 80)
-  ;;(global-visual-line-mode 1)
-  ;;(visual-line-mode 1)
+  (global-visual-line-mode t)
+  (visual-line-mode t)
   (setq global-visual-fill-column-mode t)
 
   (use-package ox-hugo
@@ -713,13 +784,14 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         python-shell-interpreter "python3"
         python-shell-interpreter-args "-i"
         python-formatter 'yapf
+        python-indent-guess-indent-offset t
+        python-indent-guess-indent-offset-verbose nil
         )
   (setq org-confirm-babel-evaluate nil)
   (setq markdown-fontify-code-blocks-natively t)
-  (setq org-src-tab-acts-natively t)
+  (setq org-src-tab-acts-natively nil)
   (setq org-edit-src-content-indentation 0)
   (setq org-src-fontify-natively t)
-  (setq exec-path-from-shell-variables '("PATH"))
   (defun org-babel-execute:yaml (body params) body)
   (defun org-remove-headlines (backend)
     "Remove headlines with :no_title: tag."
@@ -727,11 +799,17 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                      "no_title"))
   (add-hook 'org-export-before-processing-hook #'org-remove-headlines)
 
+  (setq exec-path-from-shell-variables '("PATH"))
   (exec-path-from-shell-initialize)
+
   (defun my/python-mode-hook ()
     (add-to-list 'company-backends 'company-jedi))
   (add-hook 'python-mode-hook 'my/python-mode-hook)
   (add-hook 'python-mode-hook 'company-mode)
+  (setq org-link-search-must-match-exact-headline 'query-to-create)
+  ;;(setq-default evil-surround-pairs-alist
+  ;;             (push '(?l . ("[[" . "]]")) evil-surround-pairs-alist))
+  ;;(push '(?~ . ("``" . "``")) evil-surround-pairs-alist))
   )
 
 (defun dotspacemacs/emacs-custom-settings ()
@@ -744,9 +822,26 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" default))
+ '(evil-surround-pairs-alist
+   '((40 "( " . " )")
+     (91 "[ " . " ]")
+     (123 "{ " . " }")
+     (41 "(" . ")")
+     (93 "[" . "]")
+     (125 "{" . "}")
+     (35 "#{" . "}")
+     (98 "(" . ")")
+     (66 "{" . "}")
+     (62 "<" . ">")
+     (116 . evil-surround-read-tag)
+     (60 . evil-surround-read-tag)
+     (102 . evil-surround-function)
+     (108 "[[" . "]]")))
+ '(evil-want-Y-yank-to-eol nil)
  '(hl-todo-keyword-faces
-   (quote
-    (("TODO" . "#dc752f")
+   '(("TODO" . "#dc752f")
      ("NEXT" . "#dc752f")
      ("THEM" . "#2d9574")
      ("PROG" . "#3a81c3")
@@ -760,17 +855,15 @@ This function is called at the very end of Spacemacs initialization."
      ("TEMP" . "#b1951d")
      ("FIXME" . "#dc752f")
      ("XXX+" . "#dc752f")
-     ("\\?\\?\\?+" . "#dc752f"))))
+     ("\\?\\?\\?+" . "#dc752f")))
  '(org-agenda-follow-indirect nil)
  '(org-modules
-   (quote
-    (ol-bbdb ol-bibtex ol-eww ol-gnus org-habit ol-info ol-irc ol-mhe ol-rmail ol-w3m)))
+   '(ol-bbdb ol-bibtex ol-eww ol-gnus org-habit ol-info ol-irc ol-mhe ol-rmail ol-w3m))
  '(package-selected-packages
-   (quote
-    (godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc company-go go-mode ob-go mvn meghanada maven-test-mode lsp-java groovy-mode groovy-imports pcache gradle-mode jedi-core python-environment jedi company-jedi geiser edit-indirect helm-rtags google-c-style flycheck-ycmd flycheck-rtags disaster cpp-auto-include company-ycmd ycmd request-deferred company-rtags rtags company-c-headers clang-format ccls unfill mwim exec-path-from-shell pdf-tools ox-gfm ein dap-mode bui yapfify pytest pyenv-mode py-isort pippel pipenv pyvenv pip-requirements lsp-python-ms live-py-mode importmagic epc ctable concurrent deferred helm-pydoc cython-mode company-anaconda blacken anaconda-mode pythonic ox-hugo gnuplot-mode zones web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode ivy company-web web-completion-data add-node-modules-path xterm-color vterm terminal-here shell-pop multi-term eshell-z eshell-prompt-extras esh-help yasnippet-snippets treemacs-magit smeargle orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-journal org-download org-cliplink org-brain org-ql peg ov org-super-agenda ts mmm-mode markdown-toc magit-svn magit-section magit-gitflow magit-popup lsp-ui lsp-treemacs htmlize helm-org-rifle helm-org helm-lsp helm-gitignore helm-git-grep helm-company helm-c-yasnippet gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip evil-org evil-magit magit git-commit with-editor transient company-lsp lsp-mode markdown-mode dash-functional company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-persp treemacs-evil treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile projectile helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck pkg-info epl let-alist flycheck-elsa flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump doom-modeline shrink-path all-the-icons memoize f dash s devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv hybrid-mode font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async)))
+   '(jumpc flyspell-correct-ivy flyspell-correct auto-dictionary anki-editor anki-connect org-drill persist org-fc wgrep smex lsp-ivy ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra ivy-avy counsel-projectile counsel-css seeing-is-believing rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocopfmt rubocop rspec-mode robe rbenv rake minitest helm-gtags ggtags enh-ruby-mode counsel-gtags counsel swiper chruby bundler inf-ruby sqlite3 org-roam emacsql-sqlite3 godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc company-go go-mode ob-go mvn meghanada maven-test-mode lsp-java groovy-mode groovy-imports pcache gradle-mode jedi-core python-environment jedi company-jedi geiser edit-indirect helm-rtags google-c-style flycheck-ycmd flycheck-rtags disaster cpp-auto-include company-ycmd ycmd request-deferred company-rtags rtags company-c-headers clang-format ccls unfill mwim exec-path-from-shell pdf-tools ox-gfm ein dap-mode bui yapfify pytest pyenv-mode py-isort pippel pipenv pyvenv pip-requirements lsp-python-ms live-py-mode importmagic epc ctable concurrent deferred helm-pydoc cython-mode company-anaconda blacken anaconda-mode pythonic ox-hugo gnuplot-mode zones web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode ivy company-web web-completion-data add-node-modules-path xterm-color vterm terminal-here shell-pop multi-term eshell-z eshell-prompt-extras esh-help yasnippet-snippets treemacs-magit smeargle orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-journal org-download org-cliplink org-brain org-ql peg ov org-super-agenda ts mmm-mode markdown-toc magit-svn magit-section magit-gitflow magit-popup lsp-ui lsp-treemacs htmlize helm-org-rifle helm-org helm-lsp helm-gitignore helm-git-grep helm-company helm-c-yasnippet gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip evil-org evil-magit magit git-commit with-editor transient company-lsp lsp-mode markdown-mode dash-functional company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-persp treemacs-evil treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile projectile helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck pkg-info epl let-alist flycheck-elsa flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump doom-modeline shrink-path all-the-icons memoize f dash s devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv hybrid-mode font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async))
  '(pdf-tools-handle-upgrades nil)
- '(pdf-view-midnight-colors (quote ("#655370" . "#fbf8ef")))
- '(send-mail-function (quote mailclient-send-it))
+ '(pdf-view-midnight-colors '("#655370" . "#fbf8ef"))
+ '(send-mail-function 'mailclient-send-it)
  '(setq org-modules t)
  '(tool-bar-mode nil))
 (custom-set-faces
