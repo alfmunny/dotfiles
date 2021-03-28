@@ -43,11 +43,12 @@ This function should only modify configuration layer settings."
      better-defaults
      emacs-lisp
      git
-     ;;helm
-     ivy
+     helm
+     ;;ivy
      lsp
      markdown
      go
+     deft
      ;; multiple-cursors
      (org :variables
           org-enable-hugo-support t
@@ -92,6 +93,7 @@ This function should only modify configuration layer settings."
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(
+                                      org-ql
                                       exec-path-from-shell
                                       geiser
                                       company-jedi
@@ -99,10 +101,10 @@ This function should only modify configuration layer settings."
                                       anki-connect
                                       sqlite3
                                       smartparens
-                                      (org-fc
-                                       :location (recipe :fetcher git
-                                                         :url "https://git.sr.ht/~l3kn/org-fc"
-                                                         :files (:defaults "awk" "demo.org")))
+                                      ;; (org-fc
+                                      ;;  :location (recipe :fetcher git
+                                      ;;                    :url "https://git.sr.ht/~l3kn/org-fc"
+                                      ;;                    :files (:defaults "awk" "demo.org")))
                                       )
 
    ;; A list of packages that cannot be updated.
@@ -330,7 +332,7 @@ It should only modify the values of Spacemacs settings."
    ;; displays the buffer in a same-purpose window even if the buffer can be
    ;; displayed in the current window. (default nil)
    dotspacemacs-switch-to-buffer-prefers-purpose nil
-
+   
    ;; If non-nil a progress bar is displayed when spacemacs is loading. This
    ;; may increase the boot time on some systems and emacs builds, set it to
    ;; nil to boost the loading time. (default t)
@@ -509,9 +511,17 @@ before packages are loaded."
   (require 'ox-extra)
   (require 'ox)
   (require 'company)
+  (setq deft-directory "~/OneDrive/org/")
+  (setq deft-recursive t)
   (add-hook 'after-init-hook 'org-roam-mode)
   (add-hook 'after-init-hook 'global-company-mode)
   (add-to-list 'company-backends 'company-capf)
+  (global-set-key (kbd "C-c n l") 'org-roam)
+  (global-set-key (kbd "C-c n f") 'org-roam-find-file)
+  (global-set-key (kbd "C-c n g") 'org-roam-graph)
+  (global-set-key (kbd "C-c n i") 'org-roam-insert)
+  (global-set-key (kbd "C-c n I") 'org-roam-insert-immediate)
+  (global-set-key (kbd "C-c n c") 'org-roam-capture)
   (setq org-roam-db-update-method 'immediate)
   (setq company-minimum-prefix-length 2)
   (setq company-idle-delay 0.25)
@@ -526,9 +536,9 @@ before packages are loaded."
   ;;(add-to-list 'company-backends 'company-capf))
   ;;(add-hook 'org-mode-hook 'my/org-mode-hook)
   ;;(add-hook 'org-mode-hook 'company-mode)
-  (use-package hydra)
-  (require 'org-fc-hydra)
-  (setq org-fc-directories '("~/OneDrive/org/"))
+  ;(use-package hydra)
+  ;(require 'org-fc-hydra)
+  ;;(setq org-fc-directories '("~/OneDrive/org/"))
   (setq spacemacs-theme-org-height nil)
   (setq spacemacs-theme-org-bold nil)
   (smartparens-global-mode nil)
@@ -657,14 +667,16 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
           ("j" "Journal"
            ((agenda ""))
            (
-            (org-agenda-files (list (concat org-directory "journal.org")
+            (org-agenda-files (list (concat org-roam-directory "journal_2021.org")
                                     ))
-            (org-agenda-show-log t)
-            (org-agenda-include-inactive-timestamps t)
             (org-agenda-category-filter-preset '("+journal"))
+            (org-use-tag-inheritance t)
+            (org-agenda-show-inherited-tags 'always)
+            (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled))
+            (org-agenda-include-inactive-timestamps t)
+            ;;(org-agenda-show-log t)
             (org-agenda-prefix-format '((agenda . "*  ")))
             (org-agenda-use-time-grid nil)
-            (org-agenda-entry-text-mode t)
             ))
           ("c" "Cheatsheet"
            ((tags "cheatsheet"))
@@ -691,7 +703,6 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                      ((org-agenda-skip-function
                        '(or (air-org-skip-subtree-if-habit)
                             (air-org-skip-subtree-if-priority ?A)
-                            (org-agenda-sorting-strategy '((todo-state-up)))
                             (org-agenda-skip-if nil '(schedule deadline))
                             )))
                      ))
@@ -709,23 +720,23 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
           ("a" "Algorithm" entry (file+headline "~/OneDrive/org/algorithms.org" "Algorithms")
            "* TODO %?\n:PROPERTIES:\n:EXPORT_FILE_NAME:\n:END:\n#+EXPORT_FILE_NAME: ~/Projects/playground/leetcode/\nleetcode\n\n** Problem\n** Solution\n\n")
           ("j" "Journal" entry (file+headline "~/OneDrive/org/roam/journal_2021.org" "2021")
-           "* %<%Y-%m-%d %A>\n** ToDo\n*** TODO %?\n%U\n** How was today?\n** Hightlight\n" :prepend t)
+           "* %<%Y-%m-%d %A>\n** ToDo\n*** TODO %?\n%T\n** How was today?\n** Highlight\n" :prepend t)
           ))
   (setq org-roam-capture-templates
-        '(("d" "Document" plain (function org-roam-capture--get-point)
+        '(("d" "Documents" plain (function org-roam-capture--get-point)
            "%?"
-           :file-name "${slug}"
+           :file-name "documents/${slug}"
            :head "#+title: ${title}\n#+date: %<%Y-%m-%d %H:%M:%S>\n"
            :unnarrowed t)
-          ("b" "Book Notes" plain (function org-roam-capture--get-point)
+          ("b" "Books" plain (function org-roam-capture--get-point)
            "* Summary\n** What is this book about?\n** How do you find the book?\n* Chapters \n\n"
-           :file-name "${slug}"
-           :head "#+title: ${title}\n#+date: %<%Y-%m-%d %H:%M:%S>\n"
+           :file-name "books/${slug}"
+           :head "#+title: ${title}\n#+date: %<%Y-%m-%d %H:%M:%S>\n#+EXPORT_FILE_NAME: ~/Projects/Notebooks/books/${slug}.md"
            :unnarrowed t)
           ("r" "Roam" plain (function org-roam-capture--get-point)
            "%?"
-           :file-name "%<%Y%m%d%H%M%S>-${slug}"
-           :head "#+title: ${title}\n"
+           :file-name "notes/%<%Y%m%d%H%M%S>-${slug}"
+           :head "#+title: ${title}\n#+date: %<%Y-%m-%d %H:%M:%S>\n#+EXPORT_FILE_NAME: ~/Projects/Notebooks/notes/%<%Y%m%d%H%M%S>-${slug}.md"
            :unnarrowed t)
           ))
   ;;(add-hook 'org-mode-hook (lambda ()
@@ -810,6 +821,22 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
   ;;(setq-default evil-surround-pairs-alist
   ;;             (push '(?l . ("[[" . "]]")) evil-surround-pairs-alist))
   ;;(push '(?~ . ("``" . "``")) evil-surround-pairs-alist))
+  (setq org-fc-directories '("~/OneDrive/org/"))
+  (defun my/org-roam--backlinks-list (file)
+    (if (org-roam--org-roam-file-p file)
+        (--reduce-from
+         (concat acc (format "- [[file:%s][%s]]\n"
+                             (file-relative-name (car it) org-roam-directory)
+			                       (org-roam--get-title-or-slug (car it))))
+         "" (org-roam-db-query [:select [from] :from links :where (= to $s1)] file))
+      ""))
+  (defun my/org-export-preprocessor (backend)
+    (let ((links (my/org-roam--backlinks-list (buffer-file-name))))
+      (unless (string= links "")
+        (save-excursion
+      	  (goto-char (point-max))
+      	  (insert (concat "\n* Backlinks\n") links)))))
+  (add-hook 'org-export-before-processing-hook 'my/org-export-preprocessor)
   )
 
 (defun dotspacemacs/emacs-custom-settings ()
@@ -860,7 +887,7 @@ This function is called at the very end of Spacemacs initialization."
  '(org-modules
    '(ol-bbdb ol-bibtex ol-eww ol-gnus org-habit ol-info ol-irc ol-mhe ol-rmail ol-w3m))
  '(package-selected-packages
-   '(jumpc flyspell-correct-ivy flyspell-correct auto-dictionary anki-editor anki-connect org-drill persist org-fc wgrep smex lsp-ivy ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra ivy-avy counsel-projectile counsel-css seeing-is-believing rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocopfmt rubocop rspec-mode robe rbenv rake minitest helm-gtags ggtags enh-ruby-mode counsel-gtags counsel swiper chruby bundler inf-ruby sqlite3 org-roam emacsql-sqlite3 godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc company-go go-mode ob-go mvn meghanada maven-test-mode lsp-java groovy-mode groovy-imports pcache gradle-mode jedi-core python-environment jedi company-jedi geiser edit-indirect helm-rtags google-c-style flycheck-ycmd flycheck-rtags disaster cpp-auto-include company-ycmd ycmd request-deferred company-rtags rtags company-c-headers clang-format ccls unfill mwim exec-path-from-shell pdf-tools ox-gfm ein dap-mode bui yapfify pytest pyenv-mode py-isort pippel pipenv pyvenv pip-requirements lsp-python-ms live-py-mode importmagic epc ctable concurrent deferred helm-pydoc cython-mode company-anaconda blacken anaconda-mode pythonic ox-hugo gnuplot-mode zones web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode ivy company-web web-completion-data add-node-modules-path xterm-color vterm terminal-here shell-pop multi-term eshell-z eshell-prompt-extras esh-help yasnippet-snippets treemacs-magit smeargle orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-journal org-download org-cliplink org-brain org-ql peg ov org-super-agenda ts mmm-mode markdown-toc magit-svn magit-section magit-gitflow magit-popup lsp-ui lsp-treemacs htmlize helm-org-rifle helm-org helm-lsp helm-gitignore helm-git-grep helm-company helm-c-yasnippet gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip evil-org evil-magit magit git-commit with-editor transient company-lsp lsp-mode markdown-mode dash-functional company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-persp treemacs-evil treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile projectile helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck pkg-info epl let-alist flycheck-elsa flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump doom-modeline shrink-path all-the-icons memoize f dash s devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv hybrid-mode font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async))
+   '(map deft flyspell-correct-helm jumpc flyspell-correct-ivy flyspell-correct auto-dictionary anki-editor anki-connect org-drill persist org-fc wgrep smex lsp-ivy ivy-yasnippet ivy-xref ivy-rtags ivy-purpose ivy-hydra ivy-avy counsel-projectile counsel-css seeing-is-believing rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocopfmt rubocop rspec-mode robe rbenv rake minitest helm-gtags ggtags enh-ruby-mode counsel-gtags counsel swiper chruby bundler inf-ruby sqlite3 org-roam emacsql-sqlite3 godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc company-go go-mode ob-go mvn meghanada maven-test-mode lsp-java groovy-mode groovy-imports pcache gradle-mode jedi-core python-environment jedi company-jedi geiser edit-indirect helm-rtags google-c-style flycheck-ycmd flycheck-rtags disaster cpp-auto-include company-ycmd ycmd request-deferred company-rtags rtags company-c-headers clang-format ccls unfill mwim exec-path-from-shell pdf-tools ox-gfm ein dap-mode bui yapfify pytest pyenv-mode py-isort pippel pipenv pyvenv pip-requirements lsp-python-ms live-py-mode importmagic epc ctable concurrent deferred helm-pydoc cython-mode company-anaconda blacken anaconda-mode pythonic ox-hugo gnuplot-mode zones web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode ivy company-web web-completion-data add-node-modules-path xterm-color vterm terminal-here shell-pop multi-term eshell-z eshell-prompt-extras esh-help yasnippet-snippets treemacs-magit smeargle orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-journal org-download org-cliplink org-brain org-ql peg ov org-super-agenda ts mmm-mode markdown-toc magit-svn magit-section magit-gitflow magit-popup lsp-ui lsp-treemacs htmlize helm-org-rifle helm-org helm-lsp helm-gitignore helm-git-grep helm-company helm-c-yasnippet gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy flycheck-pos-tip pos-tip evil-org evil-magit magit git-commit with-editor transient company-lsp lsp-mode markdown-mode dash-functional company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-persp treemacs-evil treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile projectile helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck pkg-info epl let-alist flycheck-elsa flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump doom-modeline shrink-path all-the-icons memoize f dash s devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv hybrid-mode font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async))
  '(pdf-tools-handle-upgrades nil)
  '(pdf-view-midnight-colors '("#655370" . "#fbf8ef"))
  '(send-mail-function 'mailclient-send-it)
