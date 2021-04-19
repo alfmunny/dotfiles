@@ -7,7 +7,7 @@ fi
 
 # Path to your oh-my-zsh installation.
 ZSH_DISABLE_COMPFIX=true
-export ZSH=/Users/yzhang/.oh-my-zsh
+export ZSH=$HOME/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
@@ -66,7 +66,7 @@ plugins=(
     rand-quote
     zsh-syntax-highlighting
     gitignore
-    git-open
+    #git-open
     #zsh-autosuggestions
     #git
     #rails
@@ -109,7 +109,7 @@ alias vi=vim
 alias viz="vi ~/.zshrc"
 alias .z=". ~/.zshrc"
 alias vivi="vi ~/.vimrc"
-alias vinotes="vi ~/Notes"
+#alias vinotes="vi ~/Notes"
 alias vinb="vi ~/Projects/blog/notes-blog/"
 alias viqn="vi ~/Projects/blog/notes-blog/source/_posts/quick-notes.md"
 
@@ -135,20 +135,20 @@ alias phexo='cd ~/Projects/blog/alfmunny.github.io; hexo generate; hexo deploy; 
 alias phugo='cd ~/Projects/blog/hugo-blog/;hugo -D;cd public;git add .;git commit -m "update";git push;cd -2'
 alias pnb="cd ~/Projects/blog/notes-blog; hexo generate; hexo deploy; cd -;"
 
-alias youtube-dl=youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+#alias youtube-dl=youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
 
 # vsphere clias
-alias vsinit="vsphere init"
-alias vsshot="vsphere snapshot"
-alias vsls="vsphere list -lrf codec"
-alias vsstart="vsphere start"
-alias vshalt="vsphere halt"
-alias vsssh="vsphere ssh"
-alias vsrm="vsphere rm"
-alias vstem="vsphere list template"
+#alias vsinit="vsphere init"
+#alias vsshot="vsphere snapshot"
+#alias vsls="vsphere list -lrf codec"
+#alias vsstart="vsphere start"
+#alias vshalt="vsphere halt"
+#alias vsssh="vsphere ssh"
+#alias vsrm="vsphere rm"
+#alias vstem="vsphere list template"
 
 # anaconda
-export PATH="/Users/yzhang/anaconda/bin:$PATH"  # commented out by conda initialize
+#export PATH="/Users/yzhang/anaconda/bin:$PATH"  # commented out by conda initialize
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
@@ -168,13 +168,14 @@ set -o vi
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # for composer
-export PATH="$HOME/.composer/vendor/bin:$PATH"
+#export PATH="$HOME/.composer/vendor/bin:$PATH"
 
 # ssh
 #
 function cprsa() {
     cat ~/.ssh/id_rsa.pub | ssh root@$1 'cat >> .ssh/authorized_keys'
 }
+
 function sb() {
     scp ~/Work/Scripts/bashrc root@$1:/etc/bash/bashrc.d/bashrc > /dev/null
     scp ~/Work/Scripts/flood root@$1:/usr/local/bin/flood > /dev/null
@@ -183,19 +184,19 @@ function sb() {
     ssh root@$1 
 }
 
-alias getlog="scp root@172.100.51.192:/opt/fast/log/sb_generic.log production.log"
-alias bash90="scp ~/Dev/tools/bashrc root@172.100.51.27:~/.bashrc"
+#alias getlog="scp root@172.100.51.192:/opt/fast/log/sb_generic.log production.log"
+#alias bash90="scp ~/Dev/tools/bashrc root@172.100.51.27:~/.bashrc"
 #alias imin="sb 172.100.51.212"
-alias imin="sb 172.20.61.212"
-
-alias eva13="ssh admin@192.168.0.215 -p 81"
+#alias imin="sb 172.20.61.212"
+#
+#alias eva13="ssh admin@192.168.0.215 -p 81"
 #alias eva13b="ssh admin@192.168.178.52 -p 10000"
 
 # cheat
-export CHEATPATH='~/Notes'
+#export CHEATPATH='~/Notes'
 
 # go
-export PATH=$PATH:$(go env GOPATH)/bin
+#export PATH=$PATH:$(go env GOPATH)/bin
 
 #function
 #
@@ -218,11 +219,11 @@ fe() {
 }
 
 # port
-export PATH=$PATH:/opt/local/bin:/opt/local/sbin
+#export PATH=$PATH:/opt/local/bin:/opt/local/sbin
 
 # mysql
-export PATH=$PATH:/usr/local/mysql/bin/:/usr/local/opt/openssl/bin/openssl
-export PATH=/usr/local/opt/mysql@5.6/bin:$PATH
+#export PATH=$PATH:/usr/local/mysql/bin/:/usr/local/opt/openssl/bin/openssl
+#export PATH=/usr/local/opt/mysql@5.6/bin:$PATH
 #export LDFLAGS="-L/usr/local/opt/mysql@5.6/lib -L/usr/local/opt/openssl/lib"
 #export CPPFLAGS="-I/usr/local/opt/mysql@5.6/include -I/usr/local/opt/openssl/include"
 
@@ -235,18 +236,15 @@ export PKG_CONFIG_PATH="/usr/local/opt/openssl/lib/pkgconfig"
 
 export LC_ALL=en_US.UTF-8
 
-# eclipse
-alias start-eclipse='open /Applications/Eclipse.app'
-
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+#test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 export TERM=xterm-256color
 
-alias bundleinstall=bundle _1.12.5_ install
-eval "$(rbenv init -)"
+#alias bundleinstall=bundle _1.12.5_ install
+#eval "$(rbenv init -)"
 
 #emacs
 #alias emacs="emacsclient -t"
-#alias emacs="emacs"
+alias emacs="emacs -nw"
 
 # zsh profiling
 # zmodload zsh/zprof
@@ -259,11 +257,11 @@ alias dtf="/usr/bin/git --git-dir $DOTFILES_PATH --work-tree=$HOME"
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # If you need to have llvm first in your PATH run:
-export PATH="/usr/local/opt/llvm/bin:$PATH"
+#export PATH="/usr/local/opt/llvm/bin:$PATH"
 
 # For compilers to find llvm you may need to set:
-export LDFLAGS="-L/usr/local/opt/llvm/lib"
-export CPPFLAGS="-I/usr/local/opt/llvm/include"
+#export LDFLAGS="-L/usr/local/opt/llvm/lib"
+#export CPPFLAGS="-I/usr/local/opt/llvm/include"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
@@ -280,5 +278,5 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 #
-export CLASSPATH=$CLASSPATH:~/Projects/notes/book-notes/algorithms-4th
+#export CLASSPATH=$CLASSPATH:~/Projects/notes/book-notes/algorithms-4th
 
