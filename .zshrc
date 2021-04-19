@@ -280,3 +280,7 @@ unset __conda_setup
 #
 #export CLASSPATH=$CLASSPATH:~/Projects/notes/book-notes/algorithms-4th
 
+alias coin="conan install . --install-folder build --env DOXYGEN_DISABLE_WARNINGS_AS_ERROS=True"
+alias cobu="conan build . --build-folder build"
+alias coln="ln -s build/compile_commands.json compile_commands.json"
+alias corun="coin;cobu;coln"

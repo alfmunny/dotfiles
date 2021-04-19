@@ -59,6 +59,8 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'rakr/vim-one'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'dhruvasagar/vim-table-mode'
+Plug 'skywind3000/asynctasks.vim'
+Plug 'skywind3000/asyncrun.vim'
 " Python
 
 " Unmanaged plugin (manually installed and updated)
@@ -198,6 +200,7 @@ map <leader><C-f> :<C-U><C-R>=printf("Leaderf rg")<CR><CR>
 map <leader><C-n> :<C-U><C-R>=printf("Leaderf file /Users/yzhang/Projects/notes/")<CR><CR>
 
 nnoremap <leader>fu :LeaderfFunction!<CR>
+nnoremap <leader>fk :<C-U><C-R>=printf("Leaderf --nowrap task")<CR><CR>
 " rg in current buffer
 noremap <leader>rb :<C-U><C-R>=printf("Leaderf! rg --current-buffer -e %s ", expand("<cword>"))<CR><CR>
 noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
@@ -368,3 +371,56 @@ function SwitchColor()
 endfunction
 
 nmap <F2> :call SwitchColor()<CR>
+
+let g:asyncrun_open = 6
+let g:asynctasks_term_pos = 'external'
+
+function! s:lf_task_source(...)
+	let rows = asynctasks#source(&columns * 48 / 100)
+	let source = []
+	for row in rows
+		let name = row[0]
+		let source += [name . '  ' . row[1] . '  : ' . row[2]]
+	endfor
+	return source
+endfunction
+
+
+function! s:lf_task_accept(line, arg)
+	let pos = stridx(a:line, '<')
+	if pos < 0
+		return
+	endif
+	let name = strpart(a:line, 0, pos)
+	let name = substitute(name, '^\s*\(.\{-}\)\s*$', '\1', '')
+	if name != ''
+		exec "AsyncTask " . name
+	endif
+endfunction
+
+function! s:lf_task_digest(line, mode)
+	let pos = stridx(a:line, '<')
+	if pos < 0
+		return [a:line, 0]
+	endif
+	let name = strpart(a:line, 0, pos)
+	return [name, 0]
+endfunction
+
+function! s:lf_win_init(...)
+	setlocal nonumber
+	setlocal nowrap
+endfunction
+
+
+let g:Lf_Extensions = get(g:, 'Lf_Extensions', {})
+let g:Lf_Extensions.task = {
+			\ 'source': string(function('s:lf_task_source'))[10:-3],
+			\ 'accept': string(function('s:lf_task_accept'))[10:-3],
+			\ 'get_digest': string(function('s:lf_task_digest'))[10:-3],
+			\ 'highlights_def': {
+			\     'Lf_hl_funcScope': '^\S\+',
+			\     'Lf_hl_funcDirname': '^\S\+\s*\zs<.*>\ze\s*:',
+			\ },
+			\ 'help' : 'navigate available tasks from asynctasks.vim',
+		\ }
