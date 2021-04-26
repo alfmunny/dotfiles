@@ -61,6 +61,8 @@ Plug 'NLKNguyen/papercolor-theme'
 Plug 'dhruvasagar/vim-table-mode'
 Plug 'skywind3000/asynctasks.vim'
 Plug 'skywind3000/asyncrun.vim'
+Plug 'skywind3000/asyncrun.extra'
+Plug 'voldikss/vim-floaterm'
 " Python
 
 " Unmanaged plugin (manually installed and updated)
@@ -137,7 +139,11 @@ vnoremap <silent> # :call VisualSelection('b')<CR>
 map <silent> <leader><cr> :noh<cr>
 
 " Copy
-map <leader>cp :%w !pbcopy<CR><CR>
+" map <leader>cp :%w !pbcopy<CR><CR>
+map <leader>cp :%w !xclip -i -sel c<CR><CR>
+
+" Repeat last commandline
+map <space>r @:
 
 " NERDTree
 map <leader>nn :NERDTreeToggle<cr>
@@ -180,7 +186,7 @@ let g:Lf_WindowPosition = 'popup'
 let g:Lf_PreviewInPopup = 1
 " let g:Lf_StlSeparator = { 'left': "\ue0b0", 'right': "\ue0b2", 'font': "DejaVu Sans Mono for Powerline" }
 " let g:Lf_PreviewResult = {'Function': 0, 'BufTag': 0 }
-let g:Lf_Ctags = "/usr/local/Cellar/universal-ctags/HEAD-01b9fc8/bin/ctags"
+let g:Lf_Ctags = "/usr/local/bin/ctags"
 let g:Lf_WindowHeight = 0.3
 let g:Lf_ShortcutF = "<leader>ff"
 let g:Lf_ShowDevIcons = 1
@@ -229,7 +235,7 @@ nmap <leader>ta :TagbarToggle<CR>
 let g:tagbar_left = 1
 
 " Rg 
-nnoremap <silent><leader>g :Rg<CR>
+" nnoremap <silent><leader>g :Rg<CR>
 if executable('rg')
     let g:ackprg = 'rg -S --no-heading --vimgrep'
 elseif executable('ag')
@@ -424,3 +430,12 @@ let g:Lf_Extensions.task = {
 			\ },
 			\ 'help' : 'navigate available tasks from asynctasks.vim',
 		\ }
+
+" :AsyncRun -mode=term -pos=floaterm  ls -la
+" :AsyncRun -mode=term -pos=floaterm -position=bottomright -width=0.4  ls -la
+" :AsyncRun -mode=term -pos=floaterm -focus=0  ls -la
+"
+
+let g:floaterm_keymap_toggle = '<F12>'
+let g:floaterm_keymap_new = '<leader>te'
+let g:flaoterm_autoclose = 2
