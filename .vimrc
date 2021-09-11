@@ -63,6 +63,8 @@ Plug 'skywind3000/asynctasks.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'skywind3000/asyncrun.extra'
 Plug 'voldikss/vim-floaterm'
+Plug 'rust-lang/rust.vim'
+Plug 'vim-scripts/a.vim'
 " Python
 
 " Unmanaged plugin (manually installed and updated)
@@ -102,7 +104,8 @@ syntax on
 autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType htmldjango setlocal shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType javascript setlocal shiftwidth=2 tabstop=2 softtabstop=2
-autocmd FileType python,ruby,cpp setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType python,ruby setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType cpp setlocal shiftwidth=4 tabstop=4 softtabstop=4
 "autocmd FileType md setlocal spell spelllang=en_us
 
 "au BufRead,BufNewFile *.md setlocal textwidth=80
@@ -139,8 +142,8 @@ vnoremap <silent> # :call VisualSelection('b')<CR>
 map <silent> <leader><cr> :noh<cr>
 
 " Copy
-" map <leader>cp :%w !pbcopy<CR><CR>
-map <leader>cp :%w !xclip -i -sel c<CR><CR>
+map <leader>cp :%w !pbcopy<CR><CR>
+" map <leader>cp :%w !xclip -i -sel c<CR><CR>
 
 " Repeat last commandline
 map <space>r @:
@@ -186,7 +189,7 @@ let g:Lf_WindowPosition = 'popup'
 let g:Lf_PreviewInPopup = 1
 " let g:Lf_StlSeparator = { 'left': "\ue0b0", 'right': "\ue0b2", 'font': "DejaVu Sans Mono for Powerline" }
 " let g:Lf_PreviewResult = {'Function': 0, 'BufTag': 0 }
-let g:Lf_Ctags = "/usr/local/bin/ctags"
+let g:Lf_Ctags = "/opt/homebrew/bin/ctags"
 let g:Lf_WindowHeight = 0.3
 let g:Lf_ShortcutF = "<leader>ff"
 let g:Lf_ShowDevIcons = 1
@@ -202,17 +205,17 @@ map <Space>f :Leaderf filer<CR>
 map <Space>b <leader>fb
 map <Space>m <leader>fm
 
+" rg search in Leaderf
 map <leader><C-f> :<C-U><C-R>=printf("Leaderf rg")<CR><CR>
 map <leader><C-n> :<C-U><C-R>=printf("Leaderf file /Users/yzhang/Projects/notes/")<CR><CR>
-
-nnoremap <leader>fu :LeaderfFunction!<CR>
-nnoremap <leader>fk :<C-U><C-R>=printf("Leaderf --nowrap task")<CR><CR>
-" rg in current buffer
 noremap <leader>rb :<C-U><C-R>=printf("Leaderf! rg --current-buffer -e %s ", expand("<cword>"))<CR><CR>
 noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
 xnoremap gf :<C-U><C-R>=printf("Leaderf! rg -F -e %s ", leaderf#Rg#visual())<CR>
 noremap go :<C-U>Leaderf! rg --recall<CR>
 "nnoremap <silent><leader><leader><CR> :Rg! <C-R>=expand("<cword>") 
+
+nnoremap <leader>fu :LeaderfFunction!<CR>
+nnoremap <leader>fk :<C-U><C-R>=printf("Leaderf --nowrap task")<CR><CR>
 "should use `Leaderf gtags --update` first
 let $GTAGSLABEL = 'native-pygments'
 let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
@@ -349,7 +352,8 @@ nmap <leader>rn <Plug>(coc-rename)
 
 "let g:vista_icon_indent = [">", ""]
 nmap <leader>v :Vista!!<CR>
-let g:vista_default_executive = 'coc'
+let g:vista_default_executive = 'ctags'
+"let g:vista_default_executive = 'coc'
 let g:vista_executive_for = {
   \ 'markdown': 'toc',
   \ }
