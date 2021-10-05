@@ -65,6 +65,14 @@ Plug 'skywind3000/asyncrun.extra'
 Plug 'voldikss/vim-floaterm'
 Plug 'rust-lang/rust.vim'
 Plug 'vim-scripts/a.vim'
+Plug 'tpope/vim-unimpaired'
+Plug 'justinmk/vim-dirvish'
+" Plug 'scrooloose/vim-slumlord'
+Plug 'aklt/plantuml-syntax'
+Plug 'skanehira/preview-uml.vim'
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'mhinz/vim-signify'
+
 " Python
 
 " Unmanaged plugin (manually installed and updated)
@@ -97,28 +105,42 @@ set ai "auto indent
 set si "smart indent
 set wrap "wrap lines
 set backspace=indent,eol,start
+set wildmenu
+set nu
+"set showcmd
+
 filetype plugin on
 filetype indent on
-set nu
 syntax on
+
 autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType htmldjango setlocal shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType javascript setlocal shiftwidth=2 tabstop=2 softtabstop=2
 autocmd FileType python,ruby setlocal shiftwidth=2 tabstop=2 softtabstop=2
-autocmd FileType cpp setlocal shiftwidth=4 tabstop=4 softtabstop=4
+autocmd FileType c,cpp,h,hpp setlocal shiftwidth=4 tabstop=4 softtabstop=4
 "autocmd FileType md setlocal spell spelllang=en_us
 
 "au BufRead,BufNewFile *.md setlocal textwidth=80
 au BufRead,BufNewFile *.md setlocal spell spelllang=en_us
-au BufEnter *.c set makeprg=gcc\ %\ -o\ %<.out
-au BufEnter *.cpp set makeprg=g++\ -std=c++14\ -IDependencies\ %\ -o\ %<.out
 au BufEnter *.java set makeprg=javac\ %
 
+au BufEnter *.c set makeprg=gcc\ %\ -o\ %<.out
 au BufEnter *.c nnoremap <F5> :make && ./%<.out<CR>
+
+"au BufEnter *.cpp set makeprg=g++\ -std=c++14\ -IDependencies\ %\ -o\ %<.out
+au BufEnter *.cpp set makeprg=make
 au BufEnter *.cpp nnoremap <F5> :make && ./%<.out<CR>
-au BufEnter *.cpp nnoremap <F6> :!./build.sh && ./run.sh<CR>
+"au BufEnter *.cpp nnoremap <F6> :!./build.sh && ./run.sh<CR>
 au BufEnter *.cpp nnoremap <F7> :!./test.sh<CR>
+au BufEnter *.cpp nnoremap <silent> <F4> :AsyncRun -cwd=<root> cmake .<cr>
+au BufEnter *.cpp nnoremap <silent> <F6> :AsyncRun -cwd=<root> -raw make test<cr>
+au BufEnter *.cpp nnoremap <silent> <F7> :AsyncRun -cwd=<root> make<cr>
+au BufEnter *.cpp nnoremap <silent> <F8> :AsyncRun -cwd=<root> -raw make run<cr>
 au BufEnter *.cpp nnoremap <leader>ac :make && ./%<.out < data.txt<CR>
+au BufEnter *.uml set makeprg=java\ -jar\ ~/Downloads/plantuml.jar\ %
+au BufEnter *.uml nnoremap <silent> <F5> :make && open ./%<.png<CR>
+
+au BufEnter *.go nnoremap <F6> :!go test -v<CR>
 au BufEnter *.py nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
 au BufEnter *.rb nnoremap <buffer> <F5> :exec '!ruby' shellescape(@%, 1)<CR>
 "http://vimdoc.sourceforge.net/htmldoc/cmdline.html#filename-modifiers
@@ -149,6 +171,7 @@ map <leader>cp :%w !pbcopy<CR><CR>
 map <space>r @:
 
 " NERDTree
+let NERDTreeHijackNetrw=1
 map <leader>nn :NERDTreeToggle<cr>
 map <leader>nb :NERDTreeFromBookmark 
 map <leader>nf :NERDTreeFind<cr>
@@ -178,11 +201,18 @@ nnoremap <leader>bo :w \| %bd \| e#<CR>
 map <leader>e :e! ~/.vimrc<CR>
 map <leader>. :source ~/.vimrc<CR>
 map <leader>nq :e! ~/Projects/blog/notes-blog/source/_posts/quick-notes.md<CR>
-map <leader>nb :FZF ~/Projects/blog/notes-blog/source/_posts<CR>
+map <leader>nb :FZF ~/Projects/cheatsheets<CR>
 autocmd! bufwritepost vimrc source ~/.vimrc
 map <leader>q :e ~/buffer<CR>
 " alternate buffer
 nnoremap <BS> <C-^>
+
+" EasyAlign
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
 
 " Leaderf
 let g:Lf_WindowPosition = 'popup'
@@ -195,31 +225,37 @@ let g:Lf_ShortcutF = "<leader>ff"
 let g:Lf_ShowDevIcons = 1
 let g:Lf_FilerShowPromptPath = 1
 let g:Lf_WorkingDirectoryMode = 'Ac'
-noremap <leader>fb :<C-U><C-R>=printf("Leaderf buffer %s", "")<CR><CR>
-noremap <leader>fm :<C-U><C-R>=printf("Leaderf mru %s", "")<CR><CR>
-noremap <leader>ft :<C-U><C-R>=printf("Leaderf bufTag %s", "")<CR><CR>
-noremap <leader>fl :<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>
+noremap <Space>fb :<C-U><C-R>=printf("Leaderf buffer %s", "")<CR><CR>
+noremap <Space>fm :<C-U><C-R>=printf("Leaderf mru %s", "")<CR><CR>
+noremap <Space>ft :<C-U><C-R>=printf("Leaderf bufTag %s", "")<CR><CR>
+noremap <Space>fl :<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>
 
 map <Space>l <leader>ff
-map <Space>f :Leaderf filer<CR>
-map <Space>b <leader>fb
-map <Space>m <leader>fm
+map <leader><C-n> :<C-U><C-R>=printf("Leaderf file /Users/alfmunny/Projects/cheatsheets/")<CR><CR>
+" map <Space>f :Leaderf filer<CR>
+" map <Space>b <leader>fb
+" map <Space>m <leader>fm
 
 " rg search in Leaderf
-map <leader><C-f> :<C-U><C-R>=printf("Leaderf rg")<CR><CR>
-map <leader><C-n> :<C-U><C-R>=printf("Leaderf file /Users/yzhang/Projects/notes/")<CR><CR>
-noremap <leader>rb :<C-U><C-R>=printf("Leaderf! rg --current-buffer -e %s ", expand("<cword>"))<CR><CR>
-noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
-xnoremap gf :<C-U><C-R>=printf("Leaderf! rg -F -e %s ", leaderf#Rg#visual())<CR>
-noremap go :<C-U>Leaderf! rg --recall<CR>
+let g:Lf_PreviewResult = {'Rg': 1}
+map <Space>rg :<C-U><C-R>=printf("Leaderf rg %s", "")<CR><CR>
+" find word in files
+"noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s --heading -C3", expand("<cword>"))<CR><CR>
+noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s", expand("<cword>"))<CR><CR>
+" find word in current buffer
+noremap <leader>rb :<C-U><C-R>=printf("Leaderf! rg -F --current-buffer -e %s ", expand("<cword>"))<CR><CR>
+" 
+xnoremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -F -e %s ", leaderf#Rg#visual())<CR><CR>
+noremap <leader>rr :<C-U>Leaderf! rg --recall<CR>
 "nnoremap <silent><leader><leader><CR> :Rg! <C-R>=expand("<cword>") 
 
-nnoremap <leader>fu :LeaderfFunction!<CR>
+nnoremap <leader>fu :LeaderfFunction<CR>
 nnoremap <leader>fk :<C-U><C-R>=printf("Leaderf --nowrap task")<CR><CR>
 "should use `Leaderf gtags --update` first
 let $GTAGSLABEL = 'native-pygments'
-let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
-let g:Lf_GtagsAutoGenerate = 0
+"let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
+let $GTAGSCONF = '/opt/homebrew/share/gtags/gtags.conf'
+let g:Lf_GtagsAutoGenerate = 1
 let g:Lf_Gtagslabel = 'native-pygments'
 noremap <leader>fg :<C-U><C-R>=printf("Leaderf! gtags")<CR><CR>
 noremap <leader>fr :<C-U><C-R>=printf("Leaderf! gtags -r %s --auto-jump", expand("<cword>"))<CR><CR>
@@ -238,7 +274,7 @@ nmap <leader>ta :TagbarToggle<CR>
 let g:tagbar_left = 1
 
 " Rg 
-" nnoremap <silent><leader>g :Rg<CR>
+nnoremap <silent><leader>g :Rg<CR>
 if executable('rg')
     let g:ackprg = 'rg -S --no-heading --vimgrep'
 elseif executable('ag')
@@ -254,8 +290,10 @@ map <leader>tn :tabnext<CR>
 cno $h e ~/
 
 " git
-map <leader><leader>gs :Gstatus<CR>
-map <leader><leader>gp :Gpush<CR>
+map <leader><leader>gs :Git<CR>
+map <leader><leader>gp :Git push<CR>
+map <leader><leader>gb :Git blame<CR>
+map <leader><leader>gl :Git log<CR>
 
 try
     set undodir=~/.vim/undodir
@@ -316,9 +354,22 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 command! -nargs=0 Format :call CocAction('format')
 
 " Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+command! -nargs=? Fold :call CocAction('fold', <f-args>)
 
-map <F9> :Format<CR>
+"map <F9> :Format<CR>
+" autocmd BufWrite *.h,*.cc,*.cpp Format
+
+"
+" Map function and class text objects
+" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
 
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
@@ -422,7 +473,6 @@ function! s:lf_win_init(...)
 	setlocal nowrap
 endfunction
 
-
 let g:Lf_Extensions = get(g:, 'Lf_Extensions', {})
 let g:Lf_Extensions.task = {
 			\ 'source': string(function('s:lf_task_source'))[10:-3],
@@ -440,6 +490,27 @@ let g:Lf_Extensions.task = {
 " :AsyncRun -mode=term -pos=floaterm -focus=0  ls -la
 "
 
-let g:floaterm_keymap_toggle = '<F12>'
-let g:floaterm_keymap_new = '<leader>te'
-let g:flaoterm_autoclose = 2
+" let g:floaterm_keymap_toggle = '<F12>'
+" let g:floaterm_keymap_new = '<leader>te'
+" let g:flaoterm_autoclose = 2
+
+let g:asyncrun_open = 10
+let g:asyncrun_bell = 1
+nnoremap <F10> :call asyncrun#quickfix_toggle(10)<CR>
+
+let g:preview_uml_url='http://localhost:8080'
+
+
+" gutentags
+let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
+
+" 所生成的数据文件的名称
+let g:gutentags_ctags_tagfile = '.tags'
+
+" 同时开启 ctags 和 gtags 支持：
+let g:gutentags_modules = []
+if executable('gtags-cscope') && executable('gtags')
+	let g:gutentags_modules += ['gtags_cscope']
+endif
+
+let g:gutentags_cache_dir = expand('~/.cache/tags')
