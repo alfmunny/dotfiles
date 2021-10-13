@@ -140,6 +140,7 @@ au BufEnter *.cpp nnoremap <leader>ac :make && ./%<.out < data.txt<CR>
 au BufEnter *.uml set makeprg=java\ -jar\ ~/Downloads/plantuml.jar\ %
 au BufEnter *.uml nnoremap <silent> <F5> :make && open ./%<.png<CR>
 
+au BufEnter *.go nnoremap <F5> :GoRun<CR>
 au BufEnter *.go nnoremap <F6> :!go test -v<CR>
 au BufEnter *.py nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
 au BufEnter *.rb nnoremap <buffer> <F5> :exec '!ruby' shellescape(@%, 1)<CR>
@@ -213,8 +214,11 @@ xmap ga <Plug>(EasyAlign)
 
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
+" Ctrl-P <Enter> | **
+" Format a table
+nmap gat <Plug>(EasyAlign)ip*\|
 
-" Leaderf
+"Leaderf
 let g:Lf_WindowPosition = 'popup'
 let g:Lf_PreviewInPopup = 1
 " let g:Lf_StlSeparator = { 'left': "\ue0b0", 'right': "\ue0b2", 'font': "DejaVu Sans Mono for Powerline" }
@@ -231,14 +235,14 @@ noremap <Space>ft :<C-U><C-R>=printf("Leaderf bufTag %s", "")<CR><CR>
 noremap <Space>fl :<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>
 
 map <Space>l <leader>ff
-map <leader><C-n> :<C-U><C-R>=printf("Leaderf file /Users/alfmunny/Projects/cheatsheets/")<CR><CR>
+map <leader><C-n> :<C-U><C-R>=printf("Leaderf file /Users/alfmunny/Projects/Computer-Science-Notes/Notes")<CR><CR>
 " map <Space>f :Leaderf filer<CR>
-" map <Space>b <leader>fb
-" map <Space>m <leader>fm
+map <Space>b <Space>fb
+map <Space>m <Space>fm
 
 " rg search in Leaderf
 let g:Lf_PreviewResult = {'Rg': 1}
-map <Space>rg :<C-U><C-R>=printf("Leaderf rg %s", "")<CR><CR>
+map <leader>rg :<C-U><C-R>=printf("Leaderf rg %s", "")<CR><CR>
 " find word in files
 "noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s --heading -C3", expand("<cword>"))<CR><CR>
 noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s", expand("<cword>"))<CR><CR>
@@ -375,7 +379,7 @@ nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementaion)
 nmap <silent> gr <Plug>(coc-references)
-nnoremap <silent> K :call <SID>show_documentation()<CR>
+"nnoremap <silent> K :call <SID>show_documentation()<CR>
 " Use `[g` and `]g` to navigate diagnostics
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
@@ -403,7 +407,7 @@ nmap <leader>rn <Plug>(coc-rename)
 
 "let g:vista_icon_indent = [">", ""]
 nmap <leader>v :Vista!!<CR>
-let g:vista_default_executive = 'ctags'
+let g:vista_default_executive = 'coc'
 "let g:vista_default_executive = 'coc'
 let g:vista_executive_for = {
   \ 'markdown': 'toc',
@@ -488,7 +492,7 @@ let g:Lf_Extensions.task = {
 " :AsyncRun -mode=term -pos=floaterm  ls -la
 " :AsyncRun -mode=term -pos=floaterm -position=bottomright -width=0.4  ls -la
 " :AsyncRun -mode=term -pos=floaterm -focus=0  ls -la
-"
+let g:dirvish_relative_paths = 0
 
 " let g:floaterm_keymap_toggle = '<F12>'
 " let g:floaterm_keymap_new = '<leader>te'
