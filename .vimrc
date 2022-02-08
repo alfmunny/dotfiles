@@ -72,6 +72,7 @@ Plug 'aklt/plantuml-syntax'
 Plug 'skanehira/preview-uml.vim'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'mhinz/vim-signify'
+"Plug 'mzlogin/vim-markdown-toc'
 
 " Python
 
@@ -127,21 +128,22 @@ au BufEnter *.java set makeprg=javac\ %
 au BufEnter *.c set makeprg=gcc\ %\ -o\ %<.out
 au BufEnter *.c nnoremap <F5> :make && ./%<.out<CR>
 
-"au BufEnter *.cpp set makeprg=g++\ -std=c++14\ -IDependencies\ %\ -o\ %<.out
-au BufEnter *.cpp set makeprg=make
+au BufEnter *.cpp set makeprg=g++\ -std=c++14\ -IDependencies\ %\ -o\ %<.out
+"au BufEnter *.cpp set makeprg=make
 au BufEnter *.cpp nnoremap <F5> :make && ./%<.out<CR>
 "au BufEnter *.cpp nnoremap <F6> :!./build.sh && ./run.sh<CR>
 au BufEnter *.cpp nnoremap <F7> :!./test.sh<CR>
 au BufEnter *.cpp nnoremap <silent> <F4> :AsyncRun -cwd=<root> cmake .<cr>
 au BufEnter *.cpp nnoremap <silent> <F6> :AsyncRun -cwd=<root> -raw make test<cr>
 au BufEnter *.cpp nnoremap <silent> <F7> :AsyncRun -cwd=<root> make<cr>
-au BufEnter *.cpp nnoremap <silent> <F8> :AsyncRun -cwd=<root> -raw make run<cr>
+au BufEnter *.cpp nnoremap <silent> <F8> :AsyncRun -cwd=<root> make run<cr>
 au BufEnter *.cpp nnoremap <leader>ac :make && ./%<.out < data.txt<CR>
 au BufEnter *.uml set makeprg=java\ -jar\ ~/Downloads/plantuml.jar\ %
 au BufEnter *.uml nnoremap <silent> <F5> :make && open ./%<.png<CR>
 
 au BufEnter *.go nnoremap <F5> :GoRun<CR>
 au BufEnter *.go nnoremap <F6> :!go test -v<CR>
+
 au BufEnter *.py nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
 au BufEnter *.rb nnoremap <buffer> <F5> :exec '!ruby' shellescape(@%, 1)<CR>
 "http://vimdoc.sourceforge.net/htmldoc/cmdline.html#filename-modifiers
@@ -170,6 +172,11 @@ map <leader>cp :%w !pbcopy<CR><CR>
 
 " Repeat last commandline
 map <space>r @:
+
+" Run current line
+map <leader><leader>rs yyp:. !sh<CR>
+map <leader><leader>rp :.w !python<CR>
+map <leader><leader>rr :.w !ruby<CR>
 
 " NERDTree
 let NERDTreeHijackNetrw=1
