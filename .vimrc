@@ -14,7 +14,7 @@ Plug 'junegunn/vim-easy-align'
 " Multiple Plug commands can be written in a single line using | separators
 " Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 
-Plug 'honza/vim-snippets'
+" Plug 'honza/vim-snippets'
 
 " On-demand loading
 Plug 'scrooloose/nerdtree'
@@ -72,7 +72,6 @@ Plug 'aklt/plantuml-syntax'
 Plug 'skanehira/preview-uml.vim'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'mhinz/vim-signify'
-"Plug 'mzlogin/vim-markdown-toc'
 
 " Python
 
@@ -128,22 +127,21 @@ au BufEnter *.java set makeprg=javac\ %
 au BufEnter *.c set makeprg=gcc\ %\ -o\ %<.out
 au BufEnter *.c nnoremap <F5> :make && ./%<.out<CR>
 
-au BufEnter *.cpp set makeprg=g++\ -std=c++14\ -IDependencies\ %\ -o\ %<.out
-"au BufEnter *.cpp set makeprg=make
+"au BufEnter *.cpp set makeprg=g++\ -std=c++14\ -IDependencies\ %\ -o\ %<.out
+au BufEnter *.cpp set makeprg=make
 au BufEnter *.cpp nnoremap <F5> :make && ./%<.out<CR>
 "au BufEnter *.cpp nnoremap <F6> :!./build.sh && ./run.sh<CR>
 au BufEnter *.cpp nnoremap <F7> :!./test.sh<CR>
 au BufEnter *.cpp nnoremap <silent> <F4> :AsyncRun -cwd=<root> cmake .<cr>
 au BufEnter *.cpp nnoremap <silent> <F6> :AsyncRun -cwd=<root> -raw make test<cr>
 au BufEnter *.cpp nnoremap <silent> <F7> :AsyncRun -cwd=<root> make<cr>
-au BufEnter *.cpp nnoremap <silent> <F8> :AsyncRun -cwd=<root> make run<cr>
+au BufEnter *.cpp nnoremap <silent> <F8> :AsyncRun -cwd=<root> -raw make run<cr>
 au BufEnter *.cpp nnoremap <leader>ac :make && ./%<.out < data.txt<CR>
 au BufEnter *.uml set makeprg=java\ -jar\ ~/Downloads/plantuml.jar\ %
 au BufEnter *.uml nnoremap <silent> <F5> :make && open ./%<.png<CR>
 
 au BufEnter *.go nnoremap <F5> :GoRun<CR>
 au BufEnter *.go nnoremap <F6> :!go test -v<CR>
-
 au BufEnter *.py nnoremap <buffer> <F5> :exec '!python' shellescape(@%, 1)<CR>
 au BufEnter *.rb nnoremap <buffer> <F5> :exec '!ruby' shellescape(@%, 1)<CR>
 "http://vimdoc.sourceforge.net/htmldoc/cmdline.html#filename-modifiers
@@ -230,7 +228,8 @@ let g:Lf_WindowPosition = 'popup'
 let g:Lf_PreviewInPopup = 1
 " let g:Lf_StlSeparator = { 'left': "\ue0b0", 'right': "\ue0b2", 'font': "DejaVu Sans Mono for Powerline" }
 " let g:Lf_PreviewResult = {'Function': 0, 'BufTag': 0 }
-let g:Lf_Ctags = "/opt/homebrew/bin/ctags"
+"let g:Lf_Ctags = "/opt/homebrew/bin/ctags"
+let g:Lf_Ctags = "/usr/local/bin/ctags"
 let g:Lf_WindowHeight = 0.3
 let g:Lf_ShortcutF = "<leader>ff"
 let g:Lf_ShowDevIcons = 1
@@ -242,7 +241,7 @@ noremap <Space>ft :<C-U><C-R>=printf("Leaderf bufTag %s", "")<CR><CR>
 noremap <Space>fl :<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>
 
 map <Space>l <leader>ff
-map <leader><C-n> :<C-U><C-R>=printf("Leaderf file /Users/alfmunny/Projects/Computer-Science-Notes/Notes")<CR><CR>
+map <leader><C-n> :<C-U><C-R>=printf("Leaderf file ~/Projects/Computer-Science-Notes/Notes")<CR><CR>
 " map <Space>f :Leaderf filer<CR>
 map <Space>b <Space>fb
 map <Space>m <Space>fm
@@ -265,7 +264,7 @@ nnoremap <leader>fk :<C-U><C-R>=printf("Leaderf --nowrap task")<CR><CR>
 "should use `Leaderf gtags --update` first
 let $GTAGSLABEL = 'native-pygments'
 "let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
-let $GTAGSCONF = '/opt/homebrew/share/gtags/gtags.conf'
+"let $GTAGSCONF = '/opt/homebrew/share/gtags/gtags.conf'
 let g:Lf_GtagsAutoGenerate = 1
 let g:Lf_Gtagslabel = 'native-pygments'
 noremap <leader>fg :<C-U><C-R>=printf("Leaderf! gtags")<CR><CR>
@@ -318,20 +317,29 @@ endtry
 " let g:pymode = 1
 "
 " Coc
+
+" Always show the signcolumn, otherwise it would shift the text each time
+" diagnostics appear/become resolved.
+"if has("nvim-0.5.0") || has("patch-8.1.1564")
+  "" Recently vim can merge signcolumn and number column into one
+  "set signcolumn=number
+"else
+  "set signcolumn=yes
+"endif
+
 set signcolumn=yes
 
-
 " Use <C-l> for trigger snippet expand.
-imap <C-l> <Plug>(coc-snippets-expand)
+" imap <C-l> <Plug>(coc-snippets-expand)
 
 " Use <C-j> for select text for visual placeholder of snippet.
-vmap <C-j> <Plug>(coc-snippets-select)
+" vmap <C-j> <Plug>(coc-snippets-select)
 
 " Use <C-j> for jump to next placeholder, it's default of coc.nvim
-let g:coc_snippet_next = '<c-j>'
+" let g:coc_snippet_next = '<c-j>'
 
 " Use <C-k> for jump to previous placeholder, it's default of coc.nvim
-let g:coc_snippet_prev = '<c-k>'
+" let g:coc_snippet_prev = '<c-k>'
 
 " Use <C-j> for both expand and jump (make expand higher priority.)
 imap <C-j> <Plug>(coc-snippets-expand-jump)
@@ -339,12 +347,9 @@ imap <C-j> <Plug>(coc-snippets-expand-jump)
 " Use <leader>x for convert visual selected code to snippet
 xmap <leader>x  <Plug>(coc-convert-snippet)
 
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? coc#_select_confirm() :
-      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-
+" Use tab for trigger completion with characters ahead and navigate.
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config.
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
       \ <SID>check_back_space() ? "\<TAB>" :
@@ -356,7 +361,19 @@ function! s:check_back_space() abort
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
-let g:coc_snippet_next = '<tab>'
+" Use <c-space> to trigger completion.
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+" Make <CR> auto-select the first completion item and notify coc.nvim to
+" format on enter, <cr> could be remapped by other vim plugin
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+" let g:coc_snippet_next = '<tab>'
 
 " inoremap <silent><expr> <c-space> coc#refresh()
 autocmd CursorHold * silent call CocActionAsync('highlight')
